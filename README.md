@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# keyboard-relay-website
+Web interface used to prouce a configuration file for Keyboard ReLay.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+App is managed in this repository: https://github.com/eliasskeppstedt/keyboard-relay-app
 
-Currently, two official plugins are available:
+## Current state
+The remapping tool can now generate a map that lets you redifine what happens when a key is pressed.  
+Keyboards: 
+- Generic ISO 105
+- MacBook ISO keyboard with physical F keys
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Languages:
+- Swedish
+- English
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Note: Key codes that are currently used (virtual key codes) are not universal for all languages
+It is possible to edit the codes manually in the json file. To change the code, you can create a 
+mapping of your liking and download it. Open in in notepad and find the key elements which looks 
+like this
+```json
+"keys": [
+    {
+        "code": "KeyQ",
+        "action": {
+            "press": {
+                "type": "VKC",
+                "vkCode": [
+                    186
+                ]
+            }
+        }
+    }
+]
 ```
+and change the number in the "vkCode" field to a relevant code for your language. If you for example have
+the spanish layout and want to change the letter "q" to "ñ", you would set the virtual key code 
+to 186 as the example show.
+Lists of virtual key codes for each language can be found here: 
+- [Windows](https://kbdlayout.info/)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Future (goals)
+The goal of this website is to offer an easy way to configure a custom configuration for your keyboard, where all the complications about how the structure needs to be is abstracted away. Without going into much grater detail, it is going to work by key codes that may differ depending on layout and languagte input. Therefore the user needs to choose a keyboard layout and input language to start mapping. Each key should be able to be mapped for an action, which is defined by what [Keyboard ReLay](https://github.com/eliasskeppstedt/keyboard-relay-app) supports. You should be able to upload an existing configuration file to edit an old mapping, or create a new one. The file currently being edited will be visible in a text field, which is what the mapping file will contain when you download it (json file).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To identify a character, Keyboard ReLay uses (virtual) key codes. These are the codes that are language specific which is why the user must choose a language. The app also supports unicodes, which is universal for all languages (the limitation is rather an applications character support). As such unicodes will also be available in mappings. They work a bit different, while a character produced by a keycode can be modified by ex shift or ctrl (as normal keys can), a unicode is a code that defines a specific character and that character only. So if you map a key to a unicode, it will not be modified by anything.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
