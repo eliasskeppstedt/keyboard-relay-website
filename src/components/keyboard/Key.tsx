@@ -8,7 +8,7 @@ interface KeyProps {
 }
 
 export default function Key({ keyInfo }: KeyProps) {
-    const { selectedKey, setSelectedKey, geometry, os, language, remapStore } = useKeymapService();
+    const { selectedKey, setSelectedKey, geometry, os, language, remapStore, removeKeyAction } = useKeymapService();
 
     if (keyInfo.type === 'spacer') {
         return (
@@ -44,12 +44,16 @@ export default function Key({ keyInfo }: KeyProps) {
     );
 
     // Resolve dynamic legend
-    const legend = resolveKeyLegend(code, geometry, os, language, remapStore);
+    const legend = resolveKeyLegend(code, geometry, os, language, remapStore, false);
     const isSpace = w > 4 && code === 'Space';
 
     return (
         <button
             onClick={() => setSelectedKey(keyInfo)}
+            onContextMenu={(e) => {
+                e.preventDefault();
+                if (hasPressAction) removeKeyAction(code);
+            }}
             className={`
                 key transition-all duration-150
                 ${isSpace ? 'opacity-90' : ''}

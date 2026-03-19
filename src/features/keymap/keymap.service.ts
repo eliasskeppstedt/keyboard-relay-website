@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, type StandardFilter } from './keyboards.config';
 import { VK_ANSI } from '../../components/keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../../components/keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../../components/keyboard/codes/virtual-keys/jis';
+import { resolveKeyLegend } from '../../utils/key-resolution';
 
 import { notify } from '../notifications/notification.service';
 
@@ -111,7 +112,8 @@ export const useKeymapService = create<KeymapState>()(
                 }
 
                 set({ remapStore: newJson });
-                notify.success(`Mapped ${selectedKey.code} to ${targetVkc.legend}`);
+                const baseLegend = resolveKeyLegend(selectedKey.code, geometry, os, language, newJson, false);
+                notify.success(`Mapped ${baseLegend} to ${targetVkc.legend}`);
             },
             removeKeyAction: (code) => {
                 const { remapStore } = get();
@@ -123,8 +125,10 @@ export const useKeymapService = create<KeymapState>()(
                     mainLayer.keys = mainLayer.keys.filter((k: { code: string }) => k.code !== code);
                 }
 
+                const { geometry, os, language } = get();
+                const baseLegend = resolveKeyLegend(code, geometry, os, language, newJson, false);
                 set({ remapStore: newJson });
-                notify.info(`Removed mapping for ${code}`);
+                notify.info(`Removed mapping for ${baseLegend}`);
             },
             getLayoutName: () => {
                 const { layoutName } = get();

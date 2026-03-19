@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useKeymapService } from '../../features/keymap';
 import { resolveKeyLegend } from '../../utils/key-resolution';
 import { KeyPicker } from './KeyPicker';
+import { notify } from '../../features/notifications/notification.service';
 
 import { VK_ANSI } from '../keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../keyboard/codes/virtual-keys/iso';
@@ -11,7 +12,7 @@ export default function KeyInfoPanel() {
     const { selectedKey, geometry, os, language, setKeyAction, removeKeyAction, remapStore } = useKeymapService();
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     
-    const legend = selectedKey ? resolveKeyLegend(selectedKey.code, geometry, os, language, remapStore) : '—';
+    const legend = selectedKey ? resolveKeyLegend(selectedKey.code, geometry, os, language, remapStore, false) : '—';
 
     // Helper to find the current action legend from JSON
     const getActionLegend = () => {
@@ -56,30 +57,32 @@ export default function KeyInfoPanel() {
                             {selectedKey ? (actionLegend === '—' ? 'Pick a key' : 'Key assigned') : 'No character selected'}
                         </span>
                     </div>
-                    <div className={`
-                        bg-bg border border-border rounded-[var(--radius-input)] relative flex items-center p-1 font-mono text-lg transition-colors 
-                        ${selectedKey ? 'focus-within:border-accent/50 cursor-pointer hover:border-accent/30' : 'opacity-50 cursor-not-allowed'}
-                    `}>
+                    <div 
+                        onClick={() => {
+                            if (!selectedKey) {
+                                notify.info('Choose a key to select a press action');
+                                return;
+                            }
+                            setIsPickerOpen(true);
+                        }}
+                        className={`
+                            bg-bg border border-border rounded-[var(--radius-input)] relative flex items-center p-1 font-mono text-lg transition-all 
+                            ${selectedKey ? 'focus-within:border-accent/40 cursor-pointer hover:border-accent/30 hover:bg-white/5 group' : 'opacity-40'}
+                        `}
+                    >
                         <button 
-                            disabled={!selectedKey}
-                            onClick={() => setIsPickerOpen(true)}
-                            className="flex-1 text-left px-3 text-muted hover:text-text transition-colors outline-none py-1.5 cursor-pointer truncate"
+                            className={`flex-1 text-left px-3 text-muted group-hover:text-text transition-colors outline-none py-1.5 truncate ${selectedKey ? 'cursor-pointer' : 'cursor-default'}`}
                         >
                             {actionLegend}
                         </button>
-                        <div className="flex items-center gap-1 px-1 shrink-0 absolute right-1">
-                            <button 
-                                className="text-muted hover:text-accent transition-colors w-6 h-6 flex items-center justify-center rounded-[var(--radius-input)] hover:bg-white/5 outline-none cursor-pointer text-sm"
-                                title="Clear"
-                            >
-                                ∅
-                            </button>
+                        <div className={`flex items-center gap-1 px-1 shrink-0 absolute right-1 ${!selectedKey ? 'hidden' : ''}`}>
                             <button 
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (selectedKey) removeKeyAction(selectedKey.code);
+                                    if (selectedKey && actionLegend !== '—') removeKeyAction(selectedKey.code);
                                 }}
-                                className="text-muted hover:text-red-400 transition-colors w-6 h-6 flex items-center justify-center rounded-[var(--radius-input)] hover:bg-white/5 outline-none cursor-pointer text-xs"
+                                disabled={actionLegend === '—'}
+                                className={`text-muted transition-colors w-6 h-6 flex items-center justify-center rounded-[var(--radius-input)] outline-none text-xs ${actionLegend !== '—' ? 'hover:text-accent hover:bg-white/5 cursor-pointer' : 'opacity-20 cursor-default'}`}
                                 title="Remove"
                             >
                                 🗙

@@ -9,10 +9,11 @@ export function resolveKeyLegend(
     geometry: GeometrySelection,
     os: OSSelection,
     language: LanguageSelection,
-    remapStore: RemapStore | null
+    remapStore: RemapStore | null,
+    includeRemappings: boolean = true
 ) {
     // 1. Check for Active Remappings in the JSON
-    if (remapStore) {
+    if (includeRemappings && remapStore) {
         const layer = remapStore.remaps?.layers?.[0];
         const keyEntry = layer?.keys?.find((k) => k.code === code);
         const vkCodeHex = keyEntry?.actions?.[0]?.press?.vkCode;

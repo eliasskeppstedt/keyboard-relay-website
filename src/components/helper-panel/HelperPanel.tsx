@@ -26,7 +26,6 @@ export default function HelperPanel() {
     const availableOS = getAvailableOS();
     const availableStandards = getAvailableStandards();
     const keyboardsForStandard = getKeyboardsByStandard(standard as StandardFilter);
-    const layoutSlug = getLayoutName();
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -97,41 +96,30 @@ export default function HelperPanel() {
         reader.readAsText(file);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
-
-    const handleDownload = () => {
-        if (!remapStore) return;
-        const blob = new Blob([JSON.stringify(remapStore, null, 4)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${layoutSlug}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
     return (
-        <div className="kbd-panel w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-12 overflow-hidden py-4">
-            <div className="flex flex-col gap-4 w-full min-w-0">
+        <div className="kbd-panel w-full flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8 py-5 sm:py-6 relative overflow-hidden">
+            <div className="flex flex-col gap-6 w-full min-w-0">
                 <div className="flex flex-row items-center gap-3">
-                    <h2 className="text-2xl font-mono text-text">Layout</h2>
-                    <span className="text-muted/60 font-mono text-xl opacity-50">:</span>
+                    <h2 className="text-xl sm:text-2xl font-mono text-text shrink-0">Layout</h2>
+                    <span className="text-muted/60 font-mono text-xl opacity-50 shrink-0">:</span>
                     <input 
                         type="text"
                         value={layoutName}
                         onChange={(e) => setLayoutName(e.target.value)}
-                        className="bg-transparent border-none text-text font-mono text-2xl outline-none focus:ring-0 w-full hover:bg-white/5 rounded-md px-3 py-1 -ml-1 transition-all cursor-text placeholder:text-muted/30"
+                        className="bg-transparent border-none text-text font-mono text-xl sm:text-2xl outline-none focus:ring-0 w-full hover:bg-white/10 rounded-md px-2 py-1 -ml-1 transition-all cursor-text placeholder:text-muted/30 truncate max-w-lg"
                         placeholder="My Remap"
                     />
                 </div>
-                <div className="flex flex-row flex-wrap items-center gap-x-6 gap-y-4">
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-6 gap-y-4 xl:gap-x-8">
                     {/* LANGUAGE FIRST */}
-                    <div className="flex flex-col gap-2 min-w-[140px] flex-1 sm:flex-initial">
-                        <label htmlFor="lang-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">Language</label>
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="lang-select" className="text-muted text-[10px] font-mono uppercase tracking-widest opacity-70">Language</label>
                         <select 
                             id="lang-select"
                             value={language} 
                             onChange={(e) => setLanguage(e.target.value as LanguageSelection)}
-                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-base outline-none cursor-pointer hover:border-accent/50 transition-colors w-full"
+                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-sm sm:text-base outline-none cursor-pointer hover:border-accent/40 transition-colors w-full"
                         >
                             <option value="swedish">Swedish</option>
                             <option value="english">English</option>
@@ -139,13 +127,13 @@ export default function HelperPanel() {
                     </div>
 
                     {/* OS SECOND */}
-                    <div className="flex flex-col gap-2 min-w-[140px] flex-1 sm:flex-initial">
-                        <label htmlFor="os-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">OS</label>
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="os-select" className="text-muted text-[10px] font-mono uppercase tracking-widest opacity-70">OS</label>
                         <select 
                             id="os-select"
                             value={os} 
                             onChange={(e) => setOS(e.target.value as OSSelection)}
-                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-base outline-none cursor-pointer hover:border-accent/50 transition-colors w-full"
+                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-sm sm:text-base outline-none cursor-pointer hover:border-accent/40 transition-colors w-full"
                         >
                             {availableOS.map(o => (
                                 <option key={o} value={o}>{o}</option>
@@ -154,13 +142,13 @@ export default function HelperPanel() {
                     </div>
 
                     {/* STANDARD THIRD */}
-                    <div className="flex flex-col gap-2 min-w-[140px] flex-1 sm:flex-initial">
-                        <label htmlFor="standard-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">Standard</label>
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="standard-select" className="text-muted text-[10px] font-mono uppercase tracking-widest opacity-70">Standard</label>
                         <select 
                             id="standard-select"
                             value={standard} 
                             onChange={(e) => setStandard(e.target.value as StandardFilter)}
-                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-base outline-none cursor-pointer hover:border-accent/50 transition-colors w-full"
+                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-sm sm:text-base outline-none cursor-pointer hover:border-accent/40 transition-colors w-full"
                         >
                             {availableStandards.map(s => (
                                 <option key={s} value={s}>{s}</option>
@@ -169,13 +157,13 @@ export default function HelperPanel() {
                     </div>
 
                     {/* KEYBOARD FOURTH */}
-                    <div className="flex flex-col gap-2 min-w-[200px] flex-1 max-w-sm">
-                        <label htmlFor="kb-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">Choose keyboard</label>
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="kb-select" className="text-muted text-[10px] font-mono uppercase tracking-widest opacity-70">Choose keyboard</label>
                         <select 
                             id="kb-select"
                             value={geometry} 
                             onChange={(e) => setGeometry(e.target.value)}
-                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-base outline-none cursor-pointer hover:border-accent/50 transition-colors w-full"
+                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-sm sm:text-base outline-none cursor-pointer hover:border-accent/40 transition-colors w-full"
                         >
                             {keyboardsForStandard.map(kb => (
                                 <option key={kb.id} value={kb.id}>{kb.name}</option>
@@ -185,15 +173,30 @@ export default function HelperPanel() {
                 </div>
             </div>
 
-            <div className="flex flex-row items-center gap-3 pb-1 md:pb-0 md:justify-end shrink-0">
+            <div className="flex flex-row items-center gap-3 xl:pb-1 w-full xl:w-auto xl:justify-end shrink-0 pt-3 xl:pt-0 border-t border-border/30 xl:border-none">
                 <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".json" />
-                <button onClick={() => fileInputRef.current?.click()} className="nav-button px-5 py-2.5 shrink-0 text-base">
+                <button onClick={() => fileInputRef.current?.click()} className="nav-button px-4 sm:px-5 py-2 sm:py-2.5 flex-1 sm:flex-initial text-sm sm:text-base whitespace-nowrap">
                     Upload JSON
                 </button>
-                <button onClick={handleDownload} className="nav-button px-5 py-2.5 shrink-0 text-base">
+                <button 
+                    onClick={() => {
+                        if (!remapStore) return;
+                        const blob = new Blob([JSON.stringify(remapStore, null, 4)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${getLayoutName()}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }}
+                    className="nav-button px-4 sm:px-5 py-2 sm:py-2.5 flex-1 sm:flex-initial text-sm sm:text-base whitespace-nowrap"
+                >
                     Download JSON
                 </button>
-                <button onClick={() => setIsEditorOpen(true)} className="nav-button px-5 py-2.5 shrink-0 text-base">
+                <button 
+                    onClick={() => setIsEditorOpen(true)}
+                    className="nav-button px-4 sm:px-5 py-2 sm:py-2.5 flex-1 sm:flex-initial text-sm sm:text-base whitespace-nowrap"
+                >
                     View JSON
                 </button>
             </div>
