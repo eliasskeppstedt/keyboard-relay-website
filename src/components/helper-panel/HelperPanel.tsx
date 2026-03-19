@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useKeymapService } from '../../features/keymap';
+import { useKeymapService, migrateRemapStore } from '../../features/keymap';
 import type { LanguageSelection, OSSelection, RemapStore } from '../../features/keymap/keymap.types';
 import JsonEditorModal from '../editor/JsonEditorModal';
 import { notify } from '../../features/notifications/notification.service';
@@ -59,7 +59,26 @@ export default function HelperPanel() {
 
                 const hasExistingMappings = remapStore?.remaps?.layers?.some((l) => (l.keys?.length ?? 0) > 0);
                 const performUpload = () => {
-                    setRemapStore(json as RemapStore);
+                    let finalJson = json as RemapStore;
+                    let fileOs = finalJson.remaps?.config?.os as OSSelection | undefined;
+                    
+                    if (!fileOs) {
+                        // Heuristic: Check for common Windows-only VK codes
+                        const allKeys = finalJson.remaps?.layers?.flatMap(l => l.keys || []) || [];
+                        const hasWinCodes = allKeys.some(k => 
+                            k.vkCode === 160 || k.vkCode === 162 || k.vkCode === 164 || k.vkCode === 91 ||
+                            k.actions?.some(a => a.press?.vkCode === 160 || a.press?.vkCode === 162 || a.press?.vkCode === 164 || a.press?.vkCode === 91)
+                        );
+                        if (hasWinCodes) fileOs = 'WINDOWS';
+                    }
+
+                    if (fileOs && fileOs !== os) {
+                        // Migration needed
+                        finalJson = migrateRemapStore(finalJson, fileOs, os, geometry);
+                        notify.info(`Migrated keymap from ${fileOs} to ${os}`);
+                    }
+
+                    setRemapStore(finalJson);
                     notify.success('Keymap uploaded successfully');
                 };
 

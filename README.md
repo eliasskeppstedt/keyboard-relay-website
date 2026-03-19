@@ -21,20 +21,19 @@ like this
 "keys": [
     {
         "code": "KeyQ",
-        "action": {
+        "vkCode": 81,
+        "actions": {
             "press": {
                 "type": "VKC",
-                "vkCode": [
-                    186
-                ]
+                "vkCode": 186
             }
         }
     }
 ]
 ```
-and change the number in the "vkCode" field to a relevant code for your language. If you for example have
-the spanish layout and want to change the letter "q" to "ñ", you would set the virtual key code 
-to 186 as the example show.
+and change the number in the "vkCode" field to a relevant code for your language. If you for 
+example have the spanish layout and want to change the letter `q` (virtual key code 81 on windows) 
+to `ñ`, you would set the virtual key code to 186 as the example show.
 Lists of virtual key codes for each language can be found here: 
 - [Windows](https://kbdlayout.info/)
 

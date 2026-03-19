@@ -38,8 +38,8 @@ export function validateRemapJson(json: unknown): ValidationResult {
         if (Array.isArray(l.keys)) {
             for (const key of l.keys) {
                 const k = key as Record<string, unknown>;
-                if (!k.code || !k.action) {
-                    return { isValid: false, error: 'Key entry missing "code" or "action"' };
+                if (!k.code || (!k.actions && !k.action)) {
+                    return { isValid: false, error: 'Key entry missing "code" or "actions"' };
                 }
             }
         }

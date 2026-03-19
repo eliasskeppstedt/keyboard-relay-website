@@ -17,8 +17,8 @@ export default function KeyInfoPanel() {
     const getActionLegend = () => {
         if (!selectedKey || !remapStore) return '—';
         const layer = remapStore.remaps?.layers?.[0];
-        const keyAction = layer?.keys?.find((k) => k.code === selectedKey.code);
-        const vkCodeHex = keyAction?.action?.press?.vkCode?.[0];
+        const keyEntry = layer?.keys?.find((k) => k.code === selectedKey.code);
+        const vkCodeHex = keyEntry?.actions?.[0]?.press?.vkCode;
         
         if (vkCodeHex === undefined) return '—';
         

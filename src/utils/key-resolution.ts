@@ -14,8 +14,8 @@ export function resolveKeyLegend(
     // 1. Check for Active Remappings in the JSON
     if (remapStore) {
         const layer = remapStore.remaps?.layers?.[0];
-        const keyAction = layer?.keys?.find((k) => k.code === code);
-        const vkCodeHex = keyAction?.action?.press?.vkCode?.[0];
+        const keyEntry = layer?.keys?.find((k) => k.code === code);
+        const vkCodeHex = keyEntry?.actions?.[0]?.press?.vkCode;
 
         if (vkCodeHex !== undefined) {
              let vkcTable = VK_ANSI;

@@ -40,7 +40,7 @@ export default function Key({ keyInfo }: KeyProps) {
     
     // Check if key has a press action assigned
     const hasPressAction = remapStore?.remaps?.layers?.[0]?.keys?.some(
-        (k: { code: string; action?: { press?: unknown } }) => k.code === code && k.action?.press
+        (k) => k.code === code && k.actions?.some((a) => a.press)
     );
 
     // Resolve dynamic legend

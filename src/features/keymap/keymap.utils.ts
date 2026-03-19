@@ -87,17 +87,29 @@ export const migrateRemapStore = (remapStore: RemapStore, oldOS: OSSelection, ne
     newStore.remaps!.layers!.forEach((layer) => {
         if (!layer.keys) return;
         layer.keys.forEach((keyEntry) => {
-            const vkCodeHex = keyEntry.action?.press?.vkCode?.[0];
+            const firstAction = keyEntry.actions?.[0];
+            const vkCodeHex = firstAction?.press?.vkCode;
             if (vkCodeHex === undefined) return;
 
             const vkcEntry = Object.values(vkcTable).find(v => (oldOS === 'WINDOWS' ? v.windows : v.mac) === vkCodeHex);
             
             if (vkcEntry) {
                 const newHex = (newOS === 'WINDOWS' ? vkcEntry.windows : vkcEntry.mac);
-                keyEntry.action!.press!.vkCode = [newHex];
+                firstAction.press.vkCode = newHex;
+
+                // Also update the base key vkCode if needed
+                const baseVkc = vkcTable[keyEntry.code];
+                if (baseVkc) {
+                    keyEntry.vkCode = (newOS === 'WINDOWS' ? baseVkc.windows : baseVkc.mac);
+                }
             }
         });
     });
+
+    if (newStore.remaps) {
+        if (!newStore.remaps.config) newStore.remaps.config = { language: 'english', layout: '', os: newOS };
+        else newStore.remaps.config.os = newOS;
+    }
 
     return newStore;
 };

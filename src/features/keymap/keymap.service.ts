@@ -28,7 +28,7 @@ interface KeymapState {
     getLayoutName: () => string;
 }
 
-const DEFAULT_REMAP_STRUCTURE = {
+const DEFAULT_REMAP_STRUCTURE: RemapStore = {
     remaps: {
         layers: [
             { name: 'Main', id: 0, config: {}, keys: [] }
@@ -62,15 +62,18 @@ export const useKeymapService = create<KeymapState>()(
                 const { selectedKey, geometry, remapStore, os } = get();
                 if (!selectedKey) return;
 
-                // Lookup hex code
+                // Lookup vkc tables
                 let vkcTable = VK_ANSI;
                 if (geometry.includes('iso')) vkcTable = VK_ISO;
                 else if (geometry.includes('jis')) vkcTable = VK_JIS;
                 
-                const vkc = vkcTable[actionCode];
-                if (!vkc) return;
+                const targetVkc = vkcTable[actionCode];
+                const baseVkc = vkcTable[selectedKey.code];
+                
+                if (!targetVkc || !baseVkc) return;
 
-                const hexCode = os === 'WINDOWS' ? vkc.windows : vkc.mac;
+                const targetHex = os === 'WINDOWS' ? targetVkc.windows : targetVkc.mac;
+                const baseHex = os === 'WINDOWS' ? baseVkc.windows : baseVkc.mac;
 
                 // Update JSON structure
                 const newJson = JSON.parse(JSON.stringify(remapStore));
@@ -84,20 +87,31 @@ export const useKeymapService = create<KeymapState>()(
                 
                 const keyEntry = {
                     code: selectedKey.code,
-                    action: {
-                        press: {
-                            type: vkc.keyType,
-                            vkCode: [hexCode]
+                    vkCode: baseHex,
+                    actions: [
+                        {
+                            press: {
+                                type: targetVkc.keyType,
+                                vkCode: targetHex
+                            }
                         }
-                    }
+                    ]
                 };
 
                 // Remove existing entry for this code if any
                 mainLayer.keys = mainLayer.keys.filter((k: { code: string }) => k.code !== selectedKey.code);
                 mainLayer.keys.push(keyEntry);
 
+                const { language } = get();
+                if (!newJson.remaps.config) {
+                    newJson.remaps.config = { os, language, layout: '' };
+                } else {
+                    newJson.remaps.config.os = os;
+                    newJson.remaps.config.language = language;
+                }
+
                 set({ remapStore: newJson });
-                notify.success(`Mapped ${selectedKey.code} to ${vkc.legend}`);
+                notify.success(`Mapped ${selectedKey.code} to ${targetVkc.legend}`);
             },
             removeKeyAction: (code) => {
                 const { remapStore } = get();

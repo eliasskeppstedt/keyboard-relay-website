@@ -44,20 +44,22 @@ export interface GlobalConfig {
 
 export interface PressAction {
     type: string;
-    vkCode: string[];
+    vkCode: number;
 }
 
-export interface KeyAction {
-    action: {
+export interface KeyEntry {
+    code: string;
+    vkCode: number;
+    actions: Array<{
         press: PressAction;
-    };
+    }>;
 }
 
 export interface Layer {
     name: string;
     id: number;
     config: Record<string, unknown>;
-    keys: KeyAction[];
+    keys: KeyEntry[];
 }
 
 export interface RootConfiguration {
@@ -70,12 +72,7 @@ export interface RootConfiguration {
 
 export interface RemapStore {
     remaps?: {
-        layers?: Array<{
-            name?: string;
-            id?: number;
-            config?: Record<string, unknown>;
-            keys?: Array<{ code: string; action?: { press?: { type?: string; vkCode?: number[] } } }>;
-        }>;
+        layers?: Layer[];
         config?: Record<string, unknown>;
         extras?: unknown[];
     };
