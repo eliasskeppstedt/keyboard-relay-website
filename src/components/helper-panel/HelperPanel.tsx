@@ -110,8 +110,8 @@ export default function HelperPanel() {
     };
 
     return (
-        <div className="kbd-panel w-full flex flex-row justify-between items-end gap-12 overflow-hidden py-4">
-            <div className="flex flex-col gap-4 shrink-0 grow">
+        <div className="kbd-panel w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-12 overflow-hidden py-4">
+            <div className="flex flex-col gap-4 w-full min-w-0">
                 <div className="flex flex-row items-center gap-3">
                     <h2 className="text-2xl font-mono text-text">Layout</h2>
                     <span className="text-muted/60 font-mono text-xl opacity-50">:</span>
@@ -123,9 +123,9 @@ export default function HelperPanel() {
                         placeholder="My Remap"
                     />
                 </div>
-                <div className="flex flex-row items-center gap-6">
+                <div className="flex flex-row flex-wrap items-center gap-x-6 gap-y-4">
                     {/* LANGUAGE FIRST */}
-                    <div className="flex flex-col gap-2 w-40 shrink-0">
+                    <div className="flex flex-col gap-2 min-w-[140px] flex-1 sm:flex-initial">
                         <label htmlFor="lang-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">Language</label>
                         <select 
                             id="lang-select"
@@ -139,7 +139,7 @@ export default function HelperPanel() {
                     </div>
 
                     {/* OS SECOND */}
-                    <div className="flex flex-col gap-2 w-40 shrink-0">
+                    <div className="flex flex-col gap-2 min-w-[140px] flex-1 sm:flex-initial">
                         <label htmlFor="os-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">OS</label>
                         <select 
                             id="os-select"
@@ -154,7 +154,7 @@ export default function HelperPanel() {
                     </div>
 
                     {/* STANDARD THIRD */}
-                    <div className="flex flex-col gap-2 w-40 shrink-0">
+                    <div className="flex flex-col gap-2 min-w-[140px] flex-1 sm:flex-initial">
                         <label htmlFor="standard-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">Standard</label>
                         <select 
                             id="standard-select"
@@ -169,7 +169,7 @@ export default function HelperPanel() {
                     </div>
 
                     {/* KEYBOARD FOURTH */}
-                    <div className="flex flex-col gap-2 grow max-w-xl">
+                    <div className="flex flex-col gap-2 min-w-[200px] flex-1 max-w-sm">
                         <label htmlFor="kb-select" className="text-muted text-[11px] font-mono uppercase tracking-widest opacity-80">Choose keyboard</label>
                         <select 
                             id="kb-select"
@@ -185,7 +185,7 @@ export default function HelperPanel() {
                 </div>
             </div>
 
-            <div className="flex flex-row items-center gap-3 pb-1 -mb-1">
+            <div className="flex flex-row items-center gap-3 pb-1 md:pb-0 md:justify-end shrink-0">
                 <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".json" />
                 <button onClick={() => fileInputRef.current?.click()} className="nav-button px-5 py-2.5 shrink-0 text-base">
                     Upload JSON
