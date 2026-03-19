@@ -44,7 +44,7 @@ export default function Key({ keyInfo }: KeyProps) {
     );
 
     // Resolve dynamic legend
-    const legend = resolveKeyLegend(code, geometry, os, language, remapStore, false);
+    const legend = resolveKeyLegend(code, geometry, os, language, remapStore, true);
     const isSpace = w > 4 && code === 'Space';
 
     return (
