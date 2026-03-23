@@ -1,7 +1,7 @@
 export type KeyCode = string;
 export type OSSelection = 'WINDOWS' | 'MAC' | 'LINUX';
-export type LanguageSelection = 'swedish' | 'english';
-export type KeyboardStandard = 'ISO' | 'ANSI' | 'JIS';
+export type LanguageSelection = 'swedish' | 'english' | 'korean' | 'spanish' | 'german' | 'japanese' | 'russian';
+export type KeyboardStandard = 'ISO' | 'ANSI' | 'JIS' | 'APPLE';
 export type KeyboardSize = '105' | 'F-Key Row' | '60%' | 'Macbook AIR'; // Expandable as needed
 
 export interface KeyboardDefinition {

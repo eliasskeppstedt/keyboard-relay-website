@@ -9,15 +9,50 @@ type SingleLayout = { type: 'single'; data: KeyGeom[] };
 type LayoutVariant = BlocksLayout | SingleLayout;
 
 // Import raw geometries
-import { 
-    ISO_mainBlockGeom as rawGenericMain, 
-    ISO_navBlockGeom as rawGenericNav, 
-    ISO_numpadBlockGeom as rawGenericNumpad 
-} from './geometry/generic-iso-105/isoLayout';
+import {
+    ISO_mainBlockGeom as raw100Main,
+    ISO_navBlockGeom as raw100Nav,
+    ISO_numpadBlockGeom as raw100Numpad
+} from './geometry/iso-100-generic';
 
-import { 
-    ISO_laptop_fKeyRow as rawMac 
-} from './geometry/mac-air-iso-f-key-physical/isoLayout';
+import {
+    ANSI_mainBlockGeom as rawANSI100Main,
+    ANSI_navBlockGeom as rawANSI100Nav,
+    ANSI_numpadBlockGeom as rawANSI100Numpad
+} from './geometry/ansi-100-generic';
+
+import {
+    JIS_mainBlockGeom as rawJIS100Main,
+    JIS_navBlockGeom as rawJIS100Nav,
+    JIS_numpadBlockGeom as rawJIS100Numpad
+} from './geometry/jis-100-generic';
+
+import {
+    ISO_mainBlockGeom as raw80Main,
+    ISO_navBlockGeom as raw80Nav
+} from './geometry/iso-80-generic';
+
+import {
+    ISO_75_mainBlockGeom as raw75Main,
+    //ISO_75_navBlockGeom as raw75Nav
+} from './geometry/iso-75-generic';
+
+import {
+    ISO_65_mainBlockGeom as raw65Main,
+    //ISO_65_navBlockGeom as raw65Nav
+} from './geometry/iso-65-generic';
+
+import {
+    ISO_60_mainBlockGeom as raw60Main
+} from './geometry/iso-60-generic';
+
+import {
+    JIS_60_mainBlockGeom as raw60JISMain
+} from './geometry/jis-60-generic';
+
+import {
+    ISO_laptop_fKeyRow as rawMac
+} from './geometry/mac-macbook-iso-physical-f-keys';
 
 export default function KeyBoard() {
     const { geometry } = useKeymapService();
@@ -25,12 +60,61 @@ export default function KeyBoard() {
 
     const layoutMap: Record<string, LayoutVariant> = useMemo(() => {
         return {
-            'generic-iso-105': {
+            'iso-100-generic': {
                 type: 'blocks',
                 blocks: [
-                    { id: 'main', data: flattenAndPosition(normalizeLayout(rawGenericMain)) },
-                    { id: 'nav', data: flattenAndPosition(normalizeLayout(rawGenericNav)) },
-                    { id: 'numpad', data: flattenAndPosition(normalizeLayout(rawGenericNumpad)) }
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(raw100Main)) },
+                    { id: 'nav', data: flattenAndPosition(normalizeLayout(raw100Nav)) },
+                    { id: 'numpad', data: flattenAndPosition(normalizeLayout(raw100Numpad)) }
+                ]
+            },
+            'ansi-100-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(rawANSI100Main)) },
+                    { id: 'nav', data: flattenAndPosition(normalizeLayout(rawANSI100Nav)) },
+                    { id: 'numpad', data: flattenAndPosition(normalizeLayout(rawANSI100Numpad)) }
+                ]
+            },
+            'jis-100-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(rawJIS100Main)) },
+                    { id: 'nav', data: flattenAndPosition(normalizeLayout(rawJIS100Nav)) },
+                    { id: 'numpad', data: flattenAndPosition(normalizeLayout(rawJIS100Numpad)) }
+                ]
+            },
+            'iso-80-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(raw80Main)) },
+                    { id: 'nav', data: flattenAndPosition(normalizeLayout(raw80Nav)) }
+                ]
+            },
+            'iso-75-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(raw75Main)) },
+                    //{ id: 'nav', data: flattenAndPosition(normalizeLayout(raw75Nav)) }
+                ]
+            },
+            'iso-65-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(raw65Main)) },
+                    //{ id: 'nav', data: flattenAndPosition(normalizeLayout(raw65Nav)) }
+                ]
+            },
+            'iso-60-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(raw60Main)) }
+                ]
+            },
+            'jis-60-generic': {
+                type: 'blocks',
+                blocks: [
+                    { id: 'main', data: flattenAndPosition(normalizeLayout(raw60JISMain)) }
                 ]
             },
             'mac-air-iso-f-key-physical': {
@@ -40,7 +124,7 @@ export default function KeyBoard() {
         };
     }, []);
 
-    const currentLayout: LayoutVariant = layoutMap[geometry] ?? layoutMap['generic-iso-105'];
+    const currentLayout: LayoutVariant = layoutMap[geometry] ?? layoutMap['iso-100-generic'];
 
     const renderKeyItem = (key: KeyGeom) => {
         if (key.type === 'cluster' && key.rows) {
@@ -64,10 +148,10 @@ export default function KeyBoard() {
                     {currentLayout.blocks.map((block: { id: string; data: KeyGeom[] }) => {
                         const maxW = Math.max(...block.data.map((k: KeyGeom) => (k.x ?? 0) + (k.w ?? 0) - 1));
                         const maxH = Math.max(...block.data.map((k: KeyGeom) => (k.y ?? 0) + (k.h ?? 0) - 1));
-                        
+
                         return (
-                            <div 
-                                key={block.id} 
+                            <div
+                                key={block.id}
                                 className="grid gap-[var(--gap)] h-fit"
                                 style={{
                                     gridTemplateColumns: `repeat(${maxW}, var(--u))`,
@@ -86,7 +170,7 @@ export default function KeyBoard() {
         const maxH = Math.max(...currentLayout.data.map((k: KeyGeom) => (k.y ?? 0) + (k.h ?? 0) - 1));
 
         return (
-            <div 
+            <div
                 className="grid gap-[var(--gap)] h-fit"
                 style={{
                     gridTemplateColumns: `repeat(${maxW}, var(--u))`,
@@ -100,7 +184,7 @@ export default function KeyBoard() {
 
     return (
         <div className="kbd-panel w-full max-w-full flex flex-col gap-4">
-            <div 
+            <div
                 ref={scrollRef}
                 className="keyboard-section overflow-x-auto pt-[var(--gap)] px-[var(--gap)] pb-2"
             >

@@ -1,4 +1,4 @@
-import { NO_VKC, type VKC } from './constants';
+import { type VKC, UNSUPPORTED_CODE } from './constants';
 
 export const VK_SHARED: Record<string, VKC> = {
     Enter: {
@@ -19,8 +19,7 @@ export const VK_SHARED: Record<string, VKC> = {
         mac: 0x30,
         windows: 0x09,
         keyType: "VKC",
-        legend: "⇥",
-        description: "tab"
+        legend: "tab"
     },
     Space: {
         mac: 0x31,
@@ -40,8 +39,8 @@ export const VK_SHARED: Record<string, VKC> = {
         mac: 0x35,
         windows: 0x1B,
         keyType: "VKC",
-        legend: "⎋",
-        description: "esc;escape"
+        legend: "esc",
+        description: "escape"
     },
     MetaRight: {
         mac: 0x36,
@@ -68,8 +67,7 @@ export const VK_SHARED: Record<string, VKC> = {
         mac: 0x39,
         windows: 0x14,
         keyType: "VKC",
-        legend: "⇪",
-        description: "caps lock"
+        legend: "caps lock"
     },
     AltLeft: {
         mac: 0x3A,
@@ -221,7 +219,7 @@ export const VK_SHARED: Record<string, VKC> = {
         mac: 0x6E,
         windows: 0x5D,
         keyType: "VKC",
-        legend: "≣",
+        legend: "Menu",
         description: "context menu"
     },
     F12: {
@@ -322,142 +320,142 @@ export const VK_SHARED: Record<string, VKC> = {
         legend: "↑",
         description: "arrow up"
     },
-    Sleep: {
-        mac: NO_VKC,
+    /*Sleep: {
+        mac: UNSUPPORTED_CODE,
         windows: 0x5F,
         keyType: "VKC",
         legend: "Sleep",
         description: "sleep"
-    },
+    },*//*
     BrowserBack: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xA6,
         keyType: "VKC",
         legend: "Back",
         description: "browser back"
-    },
+    },*//*
     BrowserForward: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xA7,
         keyType: "VKC",
         legend: "Fwd",
         description: "browser forward"
-    },
+    },*//*
     BrowserRefresh: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xA8,
         keyType: "VKC",
         legend: "Refr",
         description: "browser refresh"
-    },
+    },*//*
     BrowserStop: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xA9,
         keyType: "VKC",
         legend: "Stop",
         description: "browser stop"
-    },
+    },*//*
     BrowserSearch: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xAA,
         keyType: "VKC",
         legend: "Search",
         description: "browser search"
-    },
+    },*//*
     BrowserFavorites: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xAB,
         keyType: "VKC",
         legend: "Favs",
         description: "browser favorites"
-    },
+    },*//* 
     BrowserHome: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xAC,
         keyType: "VKC",
         legend: "Home",
         description: "browser home"
-    },
+    },*//* 
     MediaTrackNext: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB0,
         keyType: "VKC",
         legend: "⏭",
         description: "media;next track"
-    },
+    },*//* 
     MediaTrackPrevious: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB1,
         keyType: "VKC",
         legend: "⏮",
         description: "media;previous track"
-    },
+    },*//* 
     MediaStop: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB2,
         keyType: "VKC",
         legend: "⏹",
         description: "media;stop"
-    },
+    },*//* 
     MediaPlayPause: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB3,
         keyType: "VKC",
         legend: "⏯",
         description: "media;play pause"
-    },
+    },*//* 
     LaunchMail: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB4,
         keyType: "VKC",
         legend: "Mail",
         description: "launch mail"
-    },
+    },*//* 
     LaunchMediaSelect: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB5,
         keyType: "VKC",
         legend: "Media",
         description: "launch media select"
-    },
+    },*//* 
     LaunchApp1: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB6,
         keyType: "VKC",
         legend: "App1",
         description: "launch app 1"
-    },
+    },*//* 
     LaunchApp2: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0xB7,
         keyType: "VKC",
         legend: "App2",
         description: "launch app 2"
-    },
+    },*/
     PrintScreen: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0x2C,
         keyType: "VKC",
-        legend: "PrtSc",
+        legend: "PrtScn",
         description: "print screen"
     },
     ScrollLock: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0x91,
         keyType: "VKC",
         legend: "ScrLk",
         description: "scroll lock"
-    },
+    },/* 
     Pause: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0x13,
         keyType: "VKC",
         legend: "Pb",
         description: "pause;break"
-    },
+    },*//* 
     ModeChange: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0x1F,
         keyType: "VKC"
-    },
+    },*/
 };

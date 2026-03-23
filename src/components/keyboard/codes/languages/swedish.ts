@@ -6,8 +6,8 @@ export interface LanguageOverride {
 
 export const SWEDISH_OVERRIDE: Record<string, LanguageOverride> = {
     Backquote: {
-        legend: "<",
-        description: "less than",
+        legend: "§",
+        description: "IntlBackslash;section",
     },
     Minus: {
         legend: "+",
@@ -38,11 +38,15 @@ export const SWEDISH_OVERRIDE: Record<string, LanguageOverride> = {
         description: "apostrophe",
     },
     IntlBackslash: {
-        legend: "§",
-        description: "IntlBackslash;section",
+        legend: "<",
+        description: "less than",
     },
     Slash: {
         legend: "-",
         description: "minus",
+    },
+    NumpadDecimal: {
+        legend: ",",
+        description: "comma",
     },
 };

@@ -1,8 +1,10 @@
 import { VK_ANSI } from '../components/keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../components/keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../components/keyboard/codes/virtual-keys/jis';
+import { VK_EXTRAS } from '../components/keyboard/codes/extras';
 import { LANGUAGES } from '../components/keyboard/codes/languages';
 import type { GeometrySelection, OSSelection, LanguageSelection, RemapStore } from '../features/keymap/keymap.types';
+import { getOSOverride } from './os-overrides';
 
 export function resolveKeyLegend(
     code: string,
@@ -23,34 +25,29 @@ export function resolveKeyLegend(
              if (geometry.includes('iso')) vkcTable = VK_ISO;
              else if (geometry.includes('jis')) vkcTable = VK_JIS;
              
-             // Reverse lookup the legend from the hex code
-             const match = Object.values(vkcTable).find(v => (os === 'WINDOWS' ? v.windows : v.mac) === vkCodeHex);
-             if (match?.legend) return match.legend;
+             const allKeys = { ...vkcTable, ...VK_EXTRAS };
+             
+             // Reverse lookup the entry to get the matchCode for override checking
+             const matchEntry = Object.entries(allKeys).find(([_, v]) => (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code)) === vkCodeHex);
+             
+             if (matchEntry) {
+                 const [matchCode, matchVkc] = matchEntry;
+                 
+                 // Apply OS Overrides to the target key
+                 const osOverride = getOSOverride(os, matchCode);
+                 if (osOverride?.legend) return osOverride.legend;
+                 
+                 // Apply Language Overrides to the target key
+                 const langOverrides = LANGUAGES[language];
+                 if (langOverrides?.[matchCode]?.legend) return langOverrides[matchCode].legend;
+
+                 return matchVkc.legend;
+             }
         }
     }
 
-    // 2. OS-Specific Overrides (Highest priority after current mapping)
-    if (os === 'WINDOWS') {
-        const winOverrides: Record<string, string> = {
-            'MetaLeft': 'L ⊞',
-            'MetaRight': 'R ⊞',
-            'AltLeft': 'Alt',
-            'AltRight': 'AltGr',
-            'ControlLeft': 'L ✲',
-            'ControlRight': 'R ✲'
-        };
-        if (winOverrides[code]) return winOverrides[code];
-    } else if (os === 'LINUX') {
-        const linuxOverrides: Record<string, string> = {
-            'MetaLeft': 'L ◆',
-            'MetaRight': 'R ◆',
-            'AltLeft': 'Alt',
-            'AltRight': 'AltGr',
-            'ControlLeft': 'L ^',
-            'ControlRight': 'R ^'
-        };
-        if (linuxOverrides[code]) return linuxOverrides[code];
-    }
+    const osOverride = getOSOverride(os, code);
+    if (osOverride?.legend) return osOverride.legend;
     
     // 3. Get the base VKC table based on geometry
     let vkcTable = VK_ANSI;
@@ -82,23 +79,12 @@ export function resolveKeyDescription(
     os: OSSelection,
     language: LanguageSelection
 ) {
-    // OS Overrides for descriptions
-    if (os === 'WINDOWS') {
-        const winDescOverrides: Record<string, string> = {
-            'MetaLeft': 'L win;left windows;left super',
-            'MetaRight': 'R win;right windows;rigth super',
-        };
-        if (winDescOverrides[code]) return winDescOverrides[code];
-    } else if (os === 'LINUX') {
-        const linuxDescOverrides: Record<string, string> = {
-            'MetaLeft': 'left super',
-            'MetaRight': 'right super',
-        };
-        if (linuxDescOverrides[code]) return linuxDescOverrides[code];
-    }
+    const osOverride = getOSOverride(os, code);
+    if (osOverride?.description) return osOverride.description;
 
     let vkcTable = VK_ANSI;
     if (geometry.includes('iso')) vkcTable = VK_ISO;
+    else if (geometry.includes('jis')) vkcTable = VK_JIS;
     const vkc = vkcTable[code];
 
     const langOverrides = LANGUAGES[language];

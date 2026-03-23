@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, type StandardFilter } from './keyboards.config';
 import { VK_ANSI } from '../../components/keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../../components/keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../../components/keyboard/codes/virtual-keys/jis';
+import { VK_EXTRAS } from '../../components/keyboard/codes/extras';
 import { resolveKeyLegend } from '../../utils/key-resolution';
 
 import { notify } from '../notifications/notification.service';
@@ -68,13 +69,13 @@ export const useKeymapService = create<KeymapState>()(
                 if (geometry.includes('iso')) vkcTable = VK_ISO;
                 else if (geometry.includes('jis')) vkcTable = VK_JIS;
                 
-                const targetVkc = vkcTable[actionCode];
+                const targetVkc = vkcTable[actionCode] || VK_EXTRAS[actionCode];
                 const baseVkc = vkcTable[selectedKey.code];
                 
                 if (!targetVkc || !baseVkc) return;
 
-                const targetHex = os === 'WINDOWS' ? targetVkc.windows : targetVkc.mac;
-                const baseHex = os === 'WINDOWS' ? baseVkc.windows : baseVkc.mac;
+                const targetHex = os === 'WINDOWS' ? (targetVkc.windows ?? targetVkc.code) : (targetVkc.mac ?? targetVkc.code);
+                const baseHex = os === 'WINDOWS' ? (baseVkc.windows ?? baseVkc.code) : (baseVkc.mac ?? baseVkc.code);
 
                 // Update JSON structure
                 const newJson = JSON.parse(JSON.stringify(remapStore));
@@ -147,6 +148,16 @@ export const useKeymapService = create<KeymapState>()(
                 layoutName: state.layoutName,
                 remapStore: state.remapStore 
             }),
+            onRehydrateStorage: () => (state) => {
+                if (state && state.remapStore) {
+                    if (!state.remapStore.remaps) {
+                        state.remapStore.remaps = { layers: [], config: {}, extras: [] };
+                    }
+                    if (!state.remapStore.remaps.extras) {
+                        state.remapStore.remaps.extras = [];
+                    }
+                }
+            }
         }
     )
 );

@@ -1,4 +1,4 @@
-import type { RawKeyGeom } from '../../../../features/keymap/keymap.types';
+import type { RawKeyGeom } from '../../../features/keymap/keymap.types';
 
 export const ISO_laptop_fKeyRow: RawKeyGeom[][] = [
     // Row 1
@@ -98,9 +98,9 @@ export const ISO_laptop_fKeyRow: RawKeyGeom[][] = [
             type: "cluster",
             rows: [
                 [
-                    { code: "_spacer_up_l", type: "spacer", w: 4 },
+                    { code: "_spacer_up_l", type: "spacer", w: 4, h: 1 },
                     { code: "ArrowUp", h: 1 },
-                    { code: "_spacer_up_r", type: "spacer", w: 4 },
+                    { code: "_spacer_up_r", type: "spacer", w: 4, h: 1 },
                 ],
                 [
                     { code: "ArrowLeft", h: 1 },

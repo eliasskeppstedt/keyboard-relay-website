@@ -1,4 +1,4 @@
-import { NO_VKC, type VKC } from './constants';
+import { type VKC, UNSUPPORTED_CODE } from './constants';
 import { VK_SHARED } from './shared';
 
 export const VK_ANSI: Record<string, VKC> = {
@@ -29,12 +29,12 @@ export const VK_ANSI: Record<string, VKC> = {
     Equal: { mac: 0x18, windows: 0xBB, keyType: "VKC", legend: "=" },
     Digit9: { mac: 0x19, windows: 0x39, keyType: "VKC", legend: "9" },
     Digit7: { mac: 0x1A, windows: 0x37, keyType: "VKC", legend: "7" },
-    Minus: { 
-        mac: 0x1B, 
-        windows: 0xBD, 
-        keyType: "VKC", 
-        legend: "-", 
-        description: "dash;minus;hyphen" 
+    Minus: {
+        mac: 0x1B,
+        windows: 0xBD,
+        keyType: "VKC",
+        legend: "-",
+        description: "dash;minus;hyphen"
     },
     Digit8: { mac: 0x1C, windows: 0x38, keyType: "VKC", legend: "8" },
     Digit0: { mac: 0x1D, windows: 0x30, keyType: "VKC", legend: "0" },
@@ -49,35 +49,35 @@ export const VK_ANSI: Record<string, VKC> = {
     Quote: { mac: 0x27, windows: 0xDE, keyType: "VKC", legend: "'" },
     KeyK: { mac: 0x28, windows: 0x4B, keyType: "VKC", legend: "K" },
     Semicolon: { mac: 0x29, windows: 0xBA, keyType: "VKC", legend: ";" },
-    Backslash: { 
-        mac: 0x2A, 
-        windows: 0xDC, 
-        keyType: "VKC", 
+    Backslash: {
+        mac: 0x2A,
+        windows: 0xDC,
+        keyType: "VKC",
         legend: "\\",
-        description: "backslash;reverse solidus" 
+        description: "backslash;reverse solidus"
     },
     Comma: { mac: 0x2B, windows: 0xBC, keyType: "VKC", legend: "," },
-    Slash: { 
-        mac: 0x2C, 
-        windows: 0xBF, 
-        keyType: "VKC", 
+    Slash: {
+        mac: 0x2C,
+        windows: 0xBF,
+        keyType: "VKC",
         legend: "/",
-        description: "slash;solidus" 
+        description: "slash;solidus"
     },
     KeyN: { mac: 0x2D, windows: 0x4E, keyType: "VKC", legend: "N" },
     KeyM: { mac: 0x2E, windows: 0x4D, keyType: "VKC", legend: "M" },
     Period: { mac: 0x2F, windows: 0xBE, keyType: "VKC", legend: "." },
     Backquote: { mac: 0x32, windows: 0xC0, keyType: "VKC", legend: "`" },
-    
+
     // Numpad
     NumpadDecimal: { mac: 0x41, windows: 0x6E, keyType: "VKC", legend: ".", description: "period" },
     NumpadMultiply: { mac: 0x43, windows: 0x6A, keyType: "VKC", legend: "*", description: "multiply" },
     NumpadAdd: { mac: 0x45, windows: 0x6B, keyType: "VKC", legend: "+", description: "add" },
-    NumLock: { mac: 0x47, windows: 0x90, keyType: "VKC", legend: "⇭", description: "num lock" },
+    NumLock: { mac: 0x47, windows: 0x90, keyType: "VKC", legend: "num lock" },
     NumpadDivide: { mac: 0x4B, windows: 0x6F, keyType: "VKC", legend: "/", description: "slash;solidus" },
     NumpadEnter: { mac: 0x4C, windows: 0x0D, keyType: "VKC", legend: "⏎", description: "enter" },
     NumpadSubtract: { mac: 0x4E, windows: 0x6D, keyType: "VKC", legend: "-", description: "dash;minus;hyphen" },
-    NumpadEqual: { mac: 0x51, windows: NO_VKC, keyType: "VKC", legend: "=", description: "equal" },
+    NumpadEqual: { mac: 0x51, windows: UNSUPPORTED_CODE, keyType: "VKC", legend: "=", description: "equal" },
     Numpad0: { mac: 0x52, windows: 0x60, keyType: "VKC", legend: "0", description: "zero" },
     Numpad1: { mac: 0x53, windows: 0x61, keyType: "VKC", legend: "1", description: "one" },
     Numpad2: { mac: 0x54, windows: 0x62, keyType: "VKC", legend: "2", description: "two" },
@@ -88,5 +88,5 @@ export const VK_ANSI: Record<string, VKC> = {
     Numpad7: { mac: 0x59, windows: 0x67, keyType: "VKC", legend: "7", description: "seven" },
     Numpad8: { mac: 0x5B, windows: 0x68, keyType: "VKC", legend: "8", description: "eight" },
     Numpad9: { mac: 0x5C, windows: 0x69, keyType: "VKC", legend: "9", description: "nine" },
-    NumpadComma: { mac: 0x5F, windows: NO_VKC, keyType: "VKC", legend: ",", description: "comma" },
+    NumpadComma: { mac: 0x5F, windows: UNSUPPORTED_CODE, keyType: "VKC", legend: ",", description: "comma" },
 };

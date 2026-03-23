@@ -7,6 +7,7 @@ import { notify } from '../../features/notifications/notification.service';
 import { VK_ANSI } from '../keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../keyboard/codes/virtual-keys/jis';
+import { VK_EXTRAS } from '../keyboard/codes/extras';
 
 export default function KeyInfoPanel() {
     const { selectedKey, geometry, os, language, setKeyAction, removeKeyAction, remapStore } = useKeymapService();
@@ -28,7 +29,8 @@ export default function KeyInfoPanel() {
         if (geometry.includes('iso')) vkcTable = VK_ISO;
         else if (geometry.includes('jis')) vkcTable = VK_JIS;
         
-        const match = Object.values(vkcTable).find(v => (os === 'WINDOWS' ? v.windows : v.mac) === vkCodeHex);
+        const allKeys = { ...VK_EXTRAS, ...vkcTable };
+        const match = Object.values(allKeys).find(v => (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code)) === vkCodeHex);
         return match?.legend || 'Selected';
     };
 

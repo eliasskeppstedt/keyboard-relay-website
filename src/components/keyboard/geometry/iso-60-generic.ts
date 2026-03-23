@@ -1,0 +1,84 @@
+import type { RawKeyGeom } from '../../../features/keymap/keymap.types';
+
+export const ISO_60_mainBlockGeom: RawKeyGeom[][] = [
+    // Row 0 - Numbers
+    [
+        { code: "Backquote" },
+        { code: "Digit1" },
+        { code: "Digit2" },
+        { code: "Digit3" },
+        { code: "Digit4" },
+        { code: "Digit5" },
+        { code: "Digit6" },
+        { code: "Digit7" },
+        { code: "Digit8" },
+        { code: "Digit9" },
+        { code: "Digit0" },
+        { code: "Minus" },
+        { code: "Equal" },
+        { code: "Backspace", w: 8 },
+    ],
+
+    // Row 1
+    [
+        { code: "Tab", w: 6 },
+        { code: "KeyQ" },
+        { code: "KeyW" },
+        { code: "KeyE" },
+        { code: "KeyR" },
+        { code: "KeyT" },
+        { code: "KeyY" },
+        { code: "KeyU" },
+        { code: "KeyI" },
+        { code: "KeyO" },
+        { code: "KeyP" },
+        { code: "BracketLeft" },
+        { code: "BracketRight" },
+        { code: "Enter", w: 6 },
+    ],
+
+    // Row 2
+    [
+        { code: "CapsLock", w: 7 },
+        { code: "KeyA" },
+        { code: "KeyS" },
+        { code: "KeyD" },
+        { code: "KeyF" },
+        { code: "KeyG" },
+        { code: "KeyH" },
+        { code: "KeyJ" },
+        { code: "KeyK" },
+        { code: "KeyL" },
+        { code: "Semicolon" },
+        { code: "Quote" },
+        { code: "Backslash" },
+    ],
+
+    // Row 3
+    [
+        { code: "ShiftLeft", w: 5 },
+        { code: "IntlBackslash" },
+        { code: "KeyZ" },
+        { code: "KeyX" },
+        { code: "KeyC" },
+        { code: "KeyV" },
+        { code: "KeyB" },
+        { code: "KeyN" },
+        { code: "KeyM" },
+        { code: "Comma" },
+        { code: "Period" },
+        { code: "Slash" },
+        { code: "ShiftRight", w: 11 },
+    ],
+
+    // Row 4
+    [
+        { code: "ControlLeft", w: 5 },
+        { code: "MetaLeft", w: 5 },
+        { code: "AltLeft", w: 5 },
+        { code: "Space", w: 25 },
+        { code: "AltRight", w: 5 },
+        { code: "MetaRight", w: 5 },
+        { code: "ControlRight", w: 5 },
+    ],
+];

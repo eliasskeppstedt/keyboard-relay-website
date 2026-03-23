@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useLayoutEffect } from 'react';
 import { useKeymapService } from '../../features/keymap';
 import { getKeyPickerCategories } from '../../utils/key-categories';
-import { LanguageIcon } from '../ui/LanguageIcon';
 
 interface KeyPickerProps {
     onClose: () => void;
@@ -68,7 +67,6 @@ export const KeyPicker: React.FC<KeyPickerProps> = ({ onClose, onSelect }) => {
             <div className="p-4 border-b border-border bg-black/20 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <LanguageIcon className="w-5 h-5 text-accent" />
                         <h3 className="font-mono text-sm text-accent uppercase tracking-wider">Select Key Action</h3>
                     </div>
                     <div className="text-muted opacity-40">

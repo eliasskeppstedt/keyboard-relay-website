@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useKeymapService, migrateRemapStore } from '../../features/keymap';
-import type { LanguageSelection, OSSelection, RemapStore } from '../../features/keymap/keymap.types';
+import type { OSSelection, RemapStore } from '../../features/keymap/keymap.types';
 import JsonEditorModal from '../editor/JsonEditorModal';
 import { notify } from '../../features/notifications/notification.service';
 import { validateRemapJson } from '../../utils/validation';
 import { getAvailableOS, getAvailableStandards, getKeyboardsByStandard, type StandardFilter } from '../../features/keymap/keyboards.config';
+import LanguagePicker from './LanguagePicker';
 
 export default function HelperPanel() {
     const { 
-        language, setLanguage, 
         os, setOS, 
         standard, setStandard,
         geometry, setGeometry,
@@ -26,6 +26,16 @@ export default function HelperPanel() {
     const availableOS = getAvailableOS();
     const availableStandards = getAvailableStandards();
     const keyboardsForStandard = getKeyboardsByStandard(standard as StandardFilter);
+
+    // Auto-select first keyboard when standard changes
+    useEffect(() => {
+        if (keyboardsForStandard.length > 0) {
+            const currentKbExists = keyboardsForStandard.some(kb => kb.id === geometry);
+            if (!currentKbExists) {
+                setGeometry(keyboardsForStandard[0].id);
+            }
+        }
+    }, [standard, keyboardsForStandard, geometry, setGeometry]);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -77,6 +87,10 @@ export default function HelperPanel() {
                         notify.info(`Migrated keymap from ${fileOs} to ${os}`);
                     }
 
+                    // Always ensure extras array is present
+                    if (!finalJson.remaps) finalJson.remaps = { layers: [], config: {}, extras: [] };
+                    if (!finalJson.remaps.extras) finalJson.remaps.extras = [];
+
                     setRemapStore(finalJson);
                     notify.success('Keymap uploaded successfully');
                 };
@@ -97,7 +111,7 @@ export default function HelperPanel() {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
     return (
-        <div className="kbd-panel w-full flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8 py-5 sm:py-6 relative overflow-hidden">
+        <div className="kbd-panel w-full flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8 py-5 sm:py-6 relative z-20">
             <div className="flex flex-col gap-6 w-full min-w-0">
                 <div className="flex flex-row items-center gap-3">
                     <h2 className="text-xl sm:text-2xl font-mono text-text shrink-0">Layout</h2>
@@ -113,18 +127,7 @@ export default function HelperPanel() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-6 gap-y-4 xl:gap-x-8">
                     {/* LANGUAGE FIRST */}
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="lang-select" className="text-muted text-[10px] font-mono uppercase tracking-widest opacity-70">Language</label>
-                        <select 
-                            id="lang-select"
-                            value={language} 
-                            onChange={(e) => setLanguage(e.target.value as LanguageSelection)}
-                            className="bg-card text-text border border-border px-3 py-2 rounded-[var(--radius-input)] font-mono text-sm sm:text-base outline-none cursor-pointer hover:border-accent/40 transition-colors w-full"
-                        >
-                            <option value="swedish">Swedish</option>
-                            <option value="english">English</option>
-                        </select>
-                    </div>
+                    <LanguagePicker />
 
                     {/* OS SECOND */}
                     <div className="flex flex-col gap-2">

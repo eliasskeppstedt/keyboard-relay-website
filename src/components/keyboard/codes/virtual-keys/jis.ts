@@ -1,11 +1,11 @@
 import { VK_ANSI } from './ansi';
-import { NO_VKC, type VKC } from './constants';
+import { type VKC, UNSUPPORTED_CODE } from './constants';
 
 export const VK_JIS: Record<string, VKC> = {
     ...VK_ANSI,
     IntlBackslash: {
         mac: 0x0A,
-        windows: NO_VKC,
+        windows: UNSUPPORTED_CODE,
         keyType: "VKC",
         legend: "\\",
         description: "backslash"
@@ -19,34 +19,34 @@ export const VK_JIS: Record<string, VKC> = {
     },
     Lang2: {
         mac: 0x66,
-        windows: NO_VKC,
+        windows: UNSUPPORTED_CODE,
         keyType: "VKC",
         legend: "英",
         description: "eisu;lang2"
     },
     IntlYen: {
         mac: 0x5D,
-        windows: NO_VKC,
+        windows: UNSUPPORTED_CODE,
         keyType: "VKC",
         legend: "¥",
         description: "yen"
     },
     IntlRo: {
         mac: 0x5E,
-        windows: NO_VKC,
+        windows: UNSUPPORTED_CODE,
         keyType: "VKC",
         legend: "_",
         description: "underscore"
     },
     Convert: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0x1C,
         keyType: "VKC",
         legend: "変換",
         description: "convert"
     },
     NonConvert: {
-        mac: NO_VKC,
+        mac: UNSUPPORTED_CODE,
         windows: 0x1D,
         keyType: "VKC",
         legend: "無変換",

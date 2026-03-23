@@ -2,21 +2,38 @@ export default function About() {
   return (
     <div className="w-full max-w-[480px] flex flex-col gap-8">
 
-      {/* Header */}
-      <div className="flex items-baseline gap-3">
-        <span className="w-[6px] h-[6px] rounded-full bg-accent flex-shrink-0 self-center animate-pulse" />
-        <span className="font-mono text-[0.7rem] text-muted uppercase tracking-[0.08em]">Under construction</span>
+      {/* Main Description */}
+      <div className="flex flex-col gap-6">
+        <div className="border-l-2 border-border pl-5">
+          <h1 className="text-[1.4rem] font-normal leading-relaxed text-text mb-4">
+            About
+          </h1>
+          <p className="text-[0.95rem] text-text/90 leading-relaxed">
+            Keyboard ReLay is a program that makes keyboard modification accessible to everyone.
+            The website is a visual mapping tool, which allows you to easily customize your key layout.
+            Simply the tool page and make your changes, while a configuration file is generated holding your remaps.
+            When youre done, download the file and use it with Keyboard ReLay.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4 text-[0.9rem] text-muted leading-relaxed">
+          <p>
+            This mapping interface is inspired by Oryx, which is a visual configuration tool from <a href="https://www.zsa.io/voyager" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+              ZSA
+            </a> for their split keyboards. I use their <strong>Voyager</strong> keyboard and find it
+            amazing to use, and a big part of it is the intuitive and accessable configuration.
+          </p>
+          <p>
+            There are many tools available for advanced remapping of your keyboard, however Keyboard ReLay aims to
+            provide a similar experience as that of Oryx, bringing the same type of usability to regular keyboards.
+          </p>
+        </div>
       </div>
 
-      {/* Message */}
-      <div className="border-l-2 border-border pl-5">
-        <h1 className="text-[1.4rem] font-normal leading-relaxed text-text mb-2">
-          About
-        </h1>
-        <p className="text-[0.9rem] text-muted leading-relaxed">
-          Mapping tool for Keyboard ReLay. It is used to create custom mappings for your keyboard.
-          Im not done with the website, so to get more details about the project, visit my
-          GitHub repositories:
+      {/* Divider and Repo Intro */}
+      <div className="border-t border-border pt-2">
+        <p className="text-[0.85rem] text-muted leading-relaxed italic">
+          You can find the source code for Keyboard ReLay and this website in the repositories below
         </p>
       </div>
 
@@ -32,7 +49,7 @@ export default function About() {
             <span className="font-mono text-[0.8rem] text-text">keyboard-relay-app</span>
             <span className="text-[0.75rem] text-muted">Keyboard ReLay (the app)</span>
           </div>
-          <span className="text-muted text-[0.8rem] transition-all duration-200 group-hover:text-accent group-hover:translate-x-[3px]">→</span>
+          <span className="inline-flex items-center justify-center text-muted text-[0.8rem] transition-transform duration-200 group-hover:text-accent group-hover:translate-x-[3px] will-change-transform transform-gpu">→</span>
         </a>
 
         <a
@@ -45,7 +62,7 @@ export default function About() {
             <span className="font-mono text-[0.8rem] text-text">keyboard-relay-web</span>
             <span className="text-[0.75rem] text-muted">Website sources</span>
           </div>
-          <span className="text-muted text-[0.8rem] transition-all duration-200 group-hover:text-accent group-hover:translate-x-[3px]">→</span>
+          <span className="inline-flex items-center justify-center text-muted text-[0.8rem] transition-transform duration-200 group-hover:text-accent group-hover:translate-x-[3px] will-change-transform transform-gpu">→</span>
         </a>
       </div>
 

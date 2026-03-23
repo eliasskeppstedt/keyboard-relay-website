@@ -1,6 +1,6 @@
-import type { RawKeyGeom } from '../../../../features/keymap/keymap.types';
+import type { RawKeyGeom } from '../../../features/keymap/keymap.types';
 
-export const ISO_mainBlockGeom: RawKeyGeom[][] = [
+export const JIS_mainBlockGeom: RawKeyGeom[][] = [
     // Row 0 - Esc & F-keys
     [
         { code: "Escape" },
@@ -22,7 +22,7 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
     ],
     // Row 1 - Numbers
     [
-        { code: "IntlBackslash" },
+        { code: "Backquote" }, // 半角/全角
         { code: "Digit1" },
         { code: "Digit2" },
         { code: "Digit3" },
@@ -34,8 +34,9 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
         { code: "Digit9" },
         { code: "Digit0" },
         { code: "Minus" },
-        { code: "Equal" },
-        { code: "Backspace", w: 8 },
+        { code: "Equal" }, // ^
+        { code: "IntlYen" }, // ¥
+        { code: "Backspace" },
     ],
     // Row 2 - First letter row
     [
@@ -50,8 +51,8 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
         { code: "KeyI" },
         { code: "KeyO" },
         { code: "KeyP" },
-        { code: "BracketLeft" },
-        { code: "BracketRight" },
+        { code: "BracketLeft" }, // @
+        { code: "BracketRight" }, // [
         { code: "EnterTop", w: 6 },
     ],
     // Row 3 - Second letter row
@@ -67,13 +68,12 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
         { code: "KeyK" },
         { code: "KeyL" },
         { code: "Semicolon" },
-        { code: "Quote" },
-        { code: "Backslash" },
+        { code: "Quote" }, // :
+        { code: "Backslash" }, // ]
     ],
     // Row 4 - Third letter row
     [
-        { code: "ShiftLeft", w: 5 },
-        { code: "Backquote" },
+        { code: "ShiftLeft", w: 9 },
         { code: "KeyZ" },
         { code: "KeyX" },
         { code: "KeyC" },
@@ -84,22 +84,26 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
         { code: "Comma" },
         { code: "Period" },
         { code: "Slash" },
-        { code: "ShiftRight", w: 11 },
+        { code: "IntlRo" }, // \
+        { code: "ShiftRight", w: 7 },
     ],
     // Row 5 - Spacebar row
     [
         { code: "ControlLeft", w: 5 },
-        { code: "MetaLeft", w: 5 },
-        { code: "AltLeft", w: 5 },
-        { code: "Space", w: 25 },
-        { code: "AltRight", w: 5 },
-        { code: "MetaRight", w: 5 },
-        { code: "ContextMenu", w: 5 },
+        { code: "MetaLeft", w: 4 }, // Win
+        { code: "AltLeft", w: 4 },
+        { code: "NonConvert", w: 4 }, // 無変換
+        { code: "Space", w: 18 },
+        { code: "Convert", w: 4 }, // 変換
+        { code: "KanaMode", w: 4 }, // カタカナ/ひらがな
+        { code: "AltRight", w: 4 },
+        { code: "MetaRight", w: 4 }, // Win
+        { code: "ContextMenu", w: 4 },
         { code: "ControlRight", w: 5 },
     ],
 ];
 
-export const ISO_navBlockGeom: RawKeyGeom[][] = [
+export const JIS_navBlockGeom: RawKeyGeom[][] = [
     // Row 0
     [
         { code: "PrintScreen" },
@@ -138,7 +142,7 @@ export const ISO_navBlockGeom: RawKeyGeom[][] = [
     ]
 ];
 
-export const ISO_numpadBlockGeom: RawKeyGeom[][] = [
+export const JIS_numpadBlockGeom: RawKeyGeom[][] = [
     // Row 0
     [
         { code: "_space", w: 16, type: "spacer" }
