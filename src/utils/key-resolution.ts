@@ -28,7 +28,7 @@ export function resolveKeyLegend(
              const allKeys = { ...vkcTable, ...VK_EXTRAS };
              
              // Reverse lookup the entry to get the matchCode for override checking
-             const matchEntry = Object.entries(allKeys).find(([_, v]) => (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code)) === vkCodeHex);
+             const matchEntry = Object.entries(allKeys).find(([, v]) => (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code)) === vkCodeHex);
              
              if (matchEntry) {
                  const [matchCode, matchVkc] = matchEntry;
