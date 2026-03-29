@@ -22,7 +22,7 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
     ],
     // Row 1 - Numbers
     [
-        { code: "IntlBackslash" },
+        { code: "Backquote" },
         { code: "Digit1" },
         { code: "Digit2" },
         { code: "Digit3" },
@@ -73,7 +73,7 @@ export const ISO_mainBlockGeom: RawKeyGeom[][] = [
     // Row 4 - Third letter row
     [
         { code: "ShiftLeft", w: 5 },
-        { code: "Backquote" },
+        { code: "IntlBackslash" },
         { code: "KeyZ" },
         { code: "KeyX" },
         { code: "KeyC" },

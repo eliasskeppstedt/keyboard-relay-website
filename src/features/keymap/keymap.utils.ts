@@ -1,14 +1,17 @@
-import type { KeyGeom, RawKeyGeom, OSSelection, RemapStore } from './keymap.types';
+import { type KeyGeom, type RawKeyGeom, type OSSelection, type RemapStore, type Layer, type KeyEntry } from './keymap.types';
 import { VK_ANSI } from '../../components/keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../../components/keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../../components/keyboard/codes/virtual-keys/jis';
+import { VK_EXTRAS } from '../../components/keyboard/codes/extras';
+import { UK_EMOJIS } from '../../components/keyboard/codes/unicodes/emojis';
+import { type UKC, type VKC } from '../../components/keyboard/codes/code.help';
 
 /**
  * Pure helper functions for keymap logic.
  */
 
 export const normalizeLayout = (layout: RawKeyGeom[][]): KeyGeom[][] => {
-    return layout.map(row => 
+    return layout.map(row =>
         row.map(key => ({
             ...key,
             w: key.w ?? 4,
@@ -32,10 +35,10 @@ export const flattenAndPosition = (rows: KeyGeom[][], startX = 1, startY = 1): K
             while (occupied.has(`${colX},${rowY}`)) {
                 colX++;
             }
-            
+
             key.x = colX;
             key.y = rowY;
-            
+
             if (key.type === 'cluster' && key.rows) {
                 const children = flattenAndPosition(key.rows, colX, rowY);
                 result.push(...children);
@@ -56,7 +59,7 @@ export const flattenAndPosition = (rows: KeyGeom[][], startX = 1, startY = 1): K
                     occupied.add(`${colX + dx},${rowY + dy}`);
                 }
             }
-            
+
             if ((key.h || 0) > maxRowH) maxRowH = key.h;
             colX += (key.w || 0);
         }
@@ -83,24 +86,39 @@ export const migrateRemapStore = (remapStore: RemapStore, oldOS: OSSelection, ne
     else if (geometry.includes('jis')) vkcTable = VK_JIS;
 
     const newStore: RemapStore = JSON.parse(JSON.stringify(remapStore));
-    
-    newStore.remaps!.layers!.forEach((layer) => {
+    const allKeys = { ...vkcTable, ...VK_EXTRAS, ...UK_EMOJIS };
+
+    newStore.remaps!.layers!.forEach((layer: Layer) => {
         if (!layer.keys) return;
-        layer.keys.forEach((keyEntry) => {
+        layer.keys.forEach((keyEntry: KeyEntry) => {
             const firstAction = keyEntry.actions?.[0];
-            const vkCodeHex = firstAction?.press?.vkCode;
+            const vkCodeHex = firstAction?.press?.codes || (firstAction?.press as { code?: number | number[] })?.code;
             if (vkCodeHex === undefined) return;
 
-            const vkcEntry = Object.values(vkcTable).find(v => (oldOS === 'WINDOWS' ? v.windows : v.mac) === vkCodeHex);
-            
-            if (vkcEntry) {
-                const newHex = (newOS === 'WINDOWS' ? vkcEntry.windows : vkcEntry.mac) ?? vkcEntry.code ?? 0;
-                firstAction.press.vkCode = newHex;
+            const vkcEntry = Object.values(allKeys).find(v => {
+                const target = 'codePoints' in v
+                    ? (v as UKC).codePoints
+                    : (oldOS === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code));
 
-                // Also update the base key vkCode if needed
+                if (Array.isArray(target) && Array.isArray(vkCodeHex)) {
+                    return target.length === vkCodeHex.length && target.every((val, index) => val === vkCodeHex[index]);
+                }
+                return target === vkCodeHex;
+            });
+
+            if (vkcEntry) {
+                const newCode = 'codePoints' in vkcEntry
+                    ? (vkcEntry as UKC).codePoints
+                    : (newOS === 'WINDOWS' ? ((vkcEntry as VKC).windows ?? (vkcEntry as VKC).code) : ((vkcEntry as VKC).mac ?? (vkcEntry as VKC).code)) as number | number[];
+
+                const newCodes = Array.isArray(newCode) ? newCode : [newCode];
+                firstAction.press.codes = newCodes;
+                if ((firstAction.press as { code?: unknown }).code) delete (firstAction.press as { code?: unknown }).code;
+
+                // Also update the base key vkCode if needed (base keys are always single VKCs)
                 const baseVkc = vkcTable[keyEntry.code];
                 if (baseVkc) {
-                    keyEntry.vkCode = (newOS === 'WINDOWS' ? baseVkc.windows : baseVkc.mac) ?? baseVkc.code ?? 0;
+                    keyEntry.vkCode = (newOS === 'WINDOWS' ? (baseVkc.windows ?? baseVkc.code) : (baseVkc.mac ?? baseVkc.code)) as number;
                 }
             }
         });
@@ -112,4 +130,33 @@ export const migrateRemapStore = (remapStore: RemapStore, oldOS: OSSelection, ne
     }
 
     return newStore;
+};
+
+export const isUnknownMapping = (code: string, geometry: string, os: OSSelection, remapStore: RemapStore): boolean => {
+    const layer = remapStore.remaps?.layers?.[0];
+    const keyEntry = layer?.keys?.find((k) => k.code === code);
+    const assignedCodes = keyEntry?.actions?.[0]?.press?.codes || (keyEntry?.actions?.[0]?.press as { code?: number | number[] })?.code;
+
+    if (assignedCodes === undefined) return false;
+
+    let vkcTable = VK_ANSI;
+    if (geometry.includes('iso')) vkcTable = VK_ISO;
+    else if (geometry.includes('jis')) vkcTable = VK_JIS;
+
+    const allKeys = { ...vkcTable, ...VK_EXTRAS, ...UK_EMOJIS };
+    const isKnown = Object.values(allKeys).some((v) => {
+        const target = 'codePoints' in v
+            ? (v as UKC).codePoints
+            : (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code));
+
+        if (Array.isArray(target) && Array.isArray(assignedCodes)) {
+            return target.length === assignedCodes.length && target.every((val, index) => val === assignedCodes[index]);
+        }
+        if (!Array.isArray(target) && Array.isArray(assignedCodes) && assignedCodes.length === 1) {
+            return target === assignedCodes[0];
+        }
+        return (target as unknown) === (assignedCodes as unknown);
+    });
+
+    return !isKnown;
 };

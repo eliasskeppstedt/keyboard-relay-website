@@ -1,6 +1,6 @@
 import React from 'react';
 import type { KeyGeom } from '../../features/keymap';
-import { useKeymapService } from '../../features/keymap';
+import { useKeymapService, isUnknownMapping } from '../../features/keymap';
 import { resolveKeyLegend } from '../../utils/key-resolution';
 
 interface KeyProps {
@@ -43,6 +43,8 @@ export default function Key({ keyInfo }: KeyProps) {
         (k) => k.code === code && k.actions?.some((a) => a.press)
     );
 
+    const isUnknown = hasPressAction && isUnknownMapping(code, geometry, os, remapStore);
+
     // Resolve dynamic legend
     const legend = resolveKeyLegend(code, geometry, os, language, remapStore, true);
     const isSpace = w > 4 && code === 'Space';
@@ -58,7 +60,7 @@ export default function Key({ keyInfo }: KeyProps) {
                 key transition-all duration-150
                 ${isSpace ? 'opacity-90' : ''}
                 ${isSelected ? 'selected ring-2 ring-accent' : ''}
-                ${hasPressAction ? 'bg-success/15 border-success/50 text-success' : 'bg-card border-border text-text hover:bg-white/5'}
+                ${isUnknown ? 'bg-red-500/15 border-red-500/50 text-red-500' : hasPressAction ? 'bg-success/15 border-success/50 text-success' : 'bg-card border-border text-text hover:bg-white/5'}
                 relative border rounded-[var(--round)] cursor-pointer flex-shrink-0
             `}
             style={{

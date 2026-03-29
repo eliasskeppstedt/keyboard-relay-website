@@ -8,11 +8,13 @@ import { VK_ANSI } from '../keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../keyboard/codes/virtual-keys/jis';
 import { VK_EXTRAS } from '../keyboard/codes/extras';
+import { UK_EMOJIS } from '../keyboard/codes/unicodes/emojis';
+import { type UKC, type VKC } from '../keyboard/codes/code.help';
 
 export default function KeyInfoPanel() {
     const { selectedKey, geometry, os, language, setKeyAction, removeKeyAction, remapStore } = useKeymapService();
     const [isPickerOpen, setIsPickerOpen] = useState(false);
-    
+
     const legend = selectedKey ? resolveKeyLegend(selectedKey.code, geometry, os, language, remapStore, false) : '—';
 
     // Helper to find the current action legend from JSON
@@ -20,21 +22,43 @@ export default function KeyInfoPanel() {
         if (!selectedKey || !remapStore) return '—';
         const layer = remapStore.remaps?.layers?.[0];
         const keyEntry = layer?.keys?.find((k) => k.code === selectedKey.code);
-        const vkCodeHex = keyEntry?.actions?.[0]?.press?.vkCode;
-        
+        const vkCodeHex = keyEntry?.actions?.[0]?.press?.codes;
+
         if (vkCodeHex === undefined) return '—';
-        
+
         // Match hex back to legend
         let vkcTable = VK_ANSI;
         if (geometry.includes('iso')) vkcTable = VK_ISO;
         else if (geometry.includes('jis')) vkcTable = VK_JIS;
-        
-        const allKeys = { ...VK_EXTRAS, ...vkcTable };
-        const match = Object.values(allKeys).find(v => (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code)) === vkCodeHex);
-        return match?.legend || 'Selected';
+
+        const allKeys = { ...vkcTable, ...VK_EXTRAS, ...UK_EMOJIS };
+        const match = Object.values(allKeys).find(v => {
+            const target = 'codePoints' in v
+                ? (v as UKC).codePoints
+                : (os === 'WINDOWS' ? ((v as VKC).windows ?? (v as VKC).code) : ((v as VKC).mac ?? (v as VKC).code));
+
+            if (Array.isArray(target) && Array.isArray(vkCodeHex)) {
+                return target.length === vkCodeHex.length && target.every((val, index) => val === vkCodeHex[index]);
+            }
+            if (!Array.isArray(target) && Array.isArray(vkCodeHex) && vkCodeHex.length === 1) {
+                return target === vkCodeHex[0];
+            }
+            if (!Array.isArray(target) && !Array.isArray(vkCodeHex)) {
+                return target === vkCodeHex;
+            }
+            return false;
+        });
+
+        if (match) return match.legend || 'Selected';
+
+        if (Array.isArray(vkCodeHex)) {
+            return `U+${vkCodeHex.map(c => c.toString(16).toUpperCase()).join('_')}`;
+        }
+        return '—';
     };
 
     const actionLegend = getActionLegend();
+    const isUnknown = actionLegend !== '—' && (actionLegend.startsWith('0x') || actionLegend.startsWith('U+'));
 
     return (
         <div className="kbd-panel w-64 min-h-[150px] relative">
@@ -42,7 +66,7 @@ export default function KeyInfoPanel() {
                 <h2 className="text-sm font-mono text-muted uppercase tracking-wider">Key Info</h2>
                 <span className="text-[10px] text-accent/60 italic">{selectedKey ? '' : 'No key selected'}</span>
             </div>
-            
+
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-[10px] font-mono text-muted uppercase">BASE KEY</h3>
@@ -55,11 +79,11 @@ export default function KeyInfoPanel() {
                 <div className="flex flex-col gap-1">
                     <div className="flex justify-between items-end">
                         <h3 className="text-[10px] font-mono text-muted uppercase">PRESS</h3>
-                        <span className="text-[10px] text-accent/60 italic">
-                            {selectedKey ? (actionLegend === '—' ? 'Pick a key' : 'Key assigned') : 'No character selected'}
+                        <span className={`text-[10px] italic ${isUnknown ? 'text-red-500' : 'text-accent/60'}`}>
+                            {selectedKey ? (actionLegend === '—' ? 'Pick a key' : (isUnknown ? 'unknown key code' : 'Key assigned')) : 'No character selected'}
                         </span>
                     </div>
-                    <div 
+                    <div
                         onClick={() => {
                             if (!selectedKey) {
                                 notify.info('Choose a key to select a press action');
@@ -72,13 +96,13 @@ export default function KeyInfoPanel() {
                             ${selectedKey ? 'focus-within:border-accent/40 cursor-pointer hover:border-accent/30 hover:bg-white/5 group' : 'opacity-40'}
                         `}
                     >
-                        <button 
+                        <button
                             className={`flex-1 text-left px-3 text-muted group-hover:text-text transition-colors outline-none py-1.5 truncate ${selectedKey ? 'cursor-pointer' : 'cursor-default'}`}
                         >
                             {actionLegend}
                         </button>
                         <div className={`flex items-center gap-1 px-1 shrink-0 absolute right-1 ${!selectedKey ? 'hidden' : ''}`}>
-                            <button 
+                            <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (selectedKey && actionLegend !== '—') removeKeyAction(selectedKey.code);
@@ -95,7 +119,7 @@ export default function KeyInfoPanel() {
             </div>
 
             {isPickerOpen && (
-                <KeyPicker 
+                <KeyPicker
                     onClose={() => setIsPickerOpen(false)}
                     onSelect={(code) => {
                         setKeyAction(code);

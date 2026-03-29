@@ -1,5 +1,5 @@
 import { VK_ANSI } from './ansi';
-import { type VKC } from './constants';
+import { type VKC } from '../code.help.ts';
 
 export const VK_ISO: Record<string, VKC> = {
     ...VK_ANSI,

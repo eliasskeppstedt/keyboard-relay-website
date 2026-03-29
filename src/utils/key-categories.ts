@@ -3,9 +3,19 @@ import { VK_ISO } from '../components/keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../components/keyboard/codes/virtual-keys/jis';
 import { LANGUAGES } from '../components/keyboard/codes/languages';
 import type { GeometrySelection, LanguageSelection, OSSelection } from '../features/keymap/keymap.types';
-import type { VKC } from '../components/keyboard/codes/virtual-keys/constants';
+import type { VKC } from '../components/keyboard/codes/code.help';
 import { getOSOverride } from './os-overrides';
 import { VK_EXTRAS } from '../components/keyboard/codes/extras';
+import {
+    UK_SMILEYS,
+    UK_ANIMALS_NATURE,
+    UK_FOOD_DRINKS,
+    UK_ACTIVITIES,
+    UK_TRAVEL_PLACES,
+    UK_OBJECTS,
+    UK_SYMBOLS
+} from '../components/keyboard/codes/unicodes/emojis';
+import type { UKC } from '../components/keyboard/codes/code.help';
 
 export interface CategoryItem {
     code: string;
@@ -16,7 +26,8 @@ export interface CategoryItem {
 
 export interface PickerCategory {
     name: string;
-    items: CategoryItem[];
+    items?: CategoryItem[];
+    subcategories?: PickerCategory[];
 }
 
 export function getKeyPickerCategories(
@@ -31,14 +42,16 @@ export function getKeyPickerCategories(
 
     const langOverrides = LANGUAGES[language] || {};
 
-    const resolveItem = (code: string, vkc: VKC): CategoryItem => {
+    const resolveItem = (code: string, vkc: VKC | UKC): CategoryItem => {
         let label = vkc.legend || code.replace('Key', '').replace('Digit', '');
         let description = vkc.description || "";
 
-        const osOverride = getOSOverride(os, code);
-        if (osOverride) {
-            if (osOverride.legend) label = osOverride.legend;
-            if (osOverride.description) description = osOverride.description;
+        if (!('codePoints' in vkc)) {
+            const osOverride = getOSOverride(os, code);
+            if (osOverride) {
+                if (osOverride.legend) label = osOverride.legend;
+                if (osOverride.description) description = osOverride.description;
+            }
         }
 
         const override = langOverrides[code];
@@ -103,7 +116,47 @@ export function getKeyPickerCategories(
             items: Object.entries(VK_EXTRAS)
                 .map(([code, vkc]) => resolveItem(code, vkc))
         },
+        {
+            name: "Emojis",
+            subcategories: [
+                {
+                    name: "Smileys",
+                    items: Object.entries(UK_SMILEYS)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+                {
+                    name: "Animals",
+                    items: Object.entries(UK_ANIMALS_NATURE)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+                {
+                    name: "Food",
+                    items: Object.entries(UK_FOOD_DRINKS)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+                {
+                    name: "Activities",
+                    items: Object.entries(UK_ACTIVITIES)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+                {
+                    name: "Travel",
+                    items: Object.entries(UK_TRAVEL_PLACES)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+                {
+                    name: "Objects",
+                    items: Object.entries(UK_OBJECTS)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+                {
+                    name: "Symbols",
+                    items: Object.entries(UK_SYMBOLS)
+                        .map(([code, ukc]) => resolveItem(code, ukc))
+                },
+            ]
+        },
     ];
 
-    return categories.filter(cat => cat.items.length > 0);
+    return categories.filter(cat => (cat.items?.length || 0) > 0 || (cat.subcategories?.length || 0) > 0);
 }

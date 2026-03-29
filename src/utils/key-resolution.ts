@@ -2,7 +2,9 @@ import { VK_ANSI } from '../components/keyboard/codes/virtual-keys/ansi';
 import { VK_ISO } from '../components/keyboard/codes/virtual-keys/iso';
 import { VK_JIS } from '../components/keyboard/codes/virtual-keys/jis';
 import { VK_EXTRAS } from '../components/keyboard/codes/extras';
+import { UK_EMOJIS } from '../components/keyboard/codes/unicodes/emojis';
 import { LANGUAGES } from '../components/keyboard/codes/languages';
+import { type UKC, type VKC } from '../components/keyboard/codes/code.help';
 import type { GeometrySelection, OSSelection, LanguageSelection, RemapStore } from '../features/keymap/keymap.types';
 import { getOSOverride } from './os-overrides';
 
@@ -18,44 +20,65 @@ export function resolveKeyLegend(
     if (includeRemappings && remapStore) {
         const layer = remapStore.remaps?.layers?.[0];
         const keyEntry = layer?.keys?.find((k) => k.code === code);
-        const vkCodeHex = keyEntry?.actions?.[0]?.press?.vkCode;
+        const vkCodeHex = (keyEntry?.actions?.[0]?.press?.codes || (keyEntry?.actions?.[0]?.press as { code?: number | number[] })?.code) as number | number[] | undefined;
 
         if (vkCodeHex !== undefined) {
-             let vkcTable = VK_ANSI;
-             if (geometry.includes('iso')) vkcTable = VK_ISO;
-             else if (geometry.includes('jis')) vkcTable = VK_JIS;
-             
-             const allKeys = { ...vkcTable, ...VK_EXTRAS };
-             
-             // Reverse lookup the entry to get the matchCode for override checking
-             const matchEntry = Object.entries(allKeys).find(([, v]) => (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code)) === vkCodeHex);
-             
-             if (matchEntry) {
-                 const [matchCode, matchVkc] = matchEntry;
-                 
-                 // Apply OS Overrides to the target key
-                 const osOverride = getOSOverride(os, matchCode);
-                 if (osOverride?.legend) return osOverride.legend;
-                 
-                 // Apply Language Overrides to the target key
-                 const langOverrides = LANGUAGES[language];
-                 if (langOverrides?.[matchCode]?.legend) return langOverrides[matchCode].legend;
+            let vkcTable = VK_ANSI;
+            if (geometry.includes('iso')) vkcTable = VK_ISO;
+            else if (geometry.includes('jis')) vkcTable = VK_JIS;
 
-                 return matchVkc.legend;
-             }
+            const allKeys = { ...vkcTable, ...VK_EXTRAS, ...UK_EMOJIS };
+
+            // Reverse lookup the entry to get the matchCode for override checking
+            const matchEntry = Object.entries(allKeys).find(([, v]) => {
+                const target = 'codePoints' in v
+                    ? (v as UKC).codePoints
+                    : (os === 'WINDOWS' ? ((v as VKC).windows ?? (v as VKC).code) : ((v as VKC).mac ?? (v as VKC).code));
+
+                if (Array.isArray(target) && Array.isArray(vkCodeHex)) {
+                    return target.length === vkCodeHex.length && target.every((val, index) => val === vkCodeHex[index]);
+                }
+                if (!Array.isArray(target) && Array.isArray(vkCodeHex) && vkCodeHex.length === 1) {
+                    return target === vkCodeHex[0];
+                }
+                if (!Array.isArray(target) && !Array.isArray(vkCodeHex)) {
+                    return target === vkCodeHex;
+                }
+                return false;
+            });
+
+            if (matchEntry) {
+                const [matchCode, matchVkc] = matchEntry;
+
+                // Apply OS Overrides to the target key
+                const osOverride = getOSOverride(os, matchCode);
+                if (osOverride?.legend) return osOverride.legend;
+
+                // Apply Language Overrides to the target key
+                const langOverrides = LANGUAGES[language];
+                if (langOverrides?.[matchCode]?.legend) return langOverrides[matchCode].legend;
+
+                return matchVkc.legend;
+            }
+
+            // If remapped but unknown, return hex
+            if (Array.isArray(vkCodeHex)) {
+                return `U+${vkCodeHex.map(c => c.toString(16).toUpperCase()).join('_')}`;
+            }
+            return `0x${vkCodeHex.toString(16).toUpperCase().padStart(2, '0')}`;
         }
     }
 
     const osOverride = getOSOverride(os, code);
     if (osOverride?.legend) return osOverride.legend;
-    
+
     // 3. Get the base VKC table based on geometry
     let vkcTable = VK_ANSI;
     if (geometry.includes('iso')) vkcTable = VK_ISO;
     else if (geometry.includes('jis')) vkcTable = VK_JIS;
 
     const vkc = vkcTable[code];
-    
+
     // 4. Check for Language Overrides
     const langOverrides = LANGUAGES[language];
     const override = langOverrides?.[code];

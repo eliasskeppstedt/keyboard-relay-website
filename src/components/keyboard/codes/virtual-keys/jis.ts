@@ -1,5 +1,5 @@
 import { VK_ANSI } from './ansi';
-import { type VKC, UNSUPPORTED_CODE } from './constants';
+import { type VKC, UNSUPPORTED_CODE } from '../code.help.ts';
 
 export const VK_JIS: Record<string, VKC> = {
     ...VK_ANSI,

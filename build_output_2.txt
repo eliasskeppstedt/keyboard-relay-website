@@ -1,0 +1,14 @@
+
+> keyboard-relay-website@0.0.0 build C:\Users\elias\Documents\code\keyboard-relay\website
+> tsc -b && vite build
+
+[36mvite v8.0.0 [32mbuilding client environment for production...[36m[39m
+[2K
+transforming...Γ£ô 80 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB Γöé gzip:  0.30 kB
+dist/assets/index-1zHju4Er.css   36.29 kB Γöé gzip:  7.29 kB
+dist/assets/index-CPHiBq4M.js   355.11 kB Γöé gzip: 95.18 kB
+
+[32mΓ£ô built in 349ms[39m

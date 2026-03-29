@@ -1,4 +1,4 @@
-import { type VKC, UNSUPPORTED_CODE } from './constants';
+import { type VKC, UNSUPPORTED_CODE } from '../code.help.ts';
 
 export const VK_SHARED: Record<string, VKC> = {
     Enter: {

@@ -14,11 +14,9 @@ export default function HelperPanel() {
         geometry, setGeometry,
         layoutName, setLayoutName,
         remapStore,
-        getLayoutName
+        getLayoutName,
+        setRemapStore
     } = useKeymapService();
-    
-    // We'll need a way to set the whole store
-    const setRemapStore = (data: RemapStore) => useKeymapService.setState({ remapStore: data });
     
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,7 +74,10 @@ export default function HelperPanel() {
                         const allKeys = finalJson.remaps?.layers?.flatMap(l => l.keys || []) || [];
                         const hasWinCodes = allKeys.some(k => 
                             k.vkCode === 160 || k.vkCode === 162 || k.vkCode === 164 || k.vkCode === 91 ||
-                            k.actions?.some(a => a.press?.vkCode === 160 || a.press?.vkCode === 162 || a.press?.vkCode === 164 || a.press?.vkCode === 91)
+                            k.actions?.some(a => {
+                                const codes = a.press?.codes;
+                                return Array.isArray(codes) && codes.some(c => c === 160 || c === 162 || c === 164 || c === 91);
+                            })
                         );
                         if (hasWinCodes) fileOs = 'WINDOWS';
                     }

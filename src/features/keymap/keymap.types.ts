@@ -40,11 +40,13 @@ export interface GlobalConfig {
     language: string;
     layout: string;
     os: string;
+    standard?: string;
+    keyboardName?: string;
 }
 
 export interface PressAction {
-    type: string;
-    vkCode: number;
+    type: 'unicode' | 'vkCode';
+    codes: number[];
 }
 
 export interface KeyEntry {

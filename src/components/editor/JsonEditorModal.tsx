@@ -8,7 +8,13 @@ interface JsonEditorModalProps {
 }
 
 export default function JsonEditorModal({ isOpen, onClose }: JsonEditorModalProps) {
-    const { remapStore } = useKeymapService();
+    const { remapStore, syncConfig } = useKeymapService();
+    
+    useEffect(() => {
+        if (isOpen) {
+            syncConfig();
+        }
+    }, [isOpen, syncConfig]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
