@@ -6,6 +6,7 @@ import { UK_EMOJIS } from '../components/keyboard/codes/unicodes/emojis';
 import { LANGUAGES } from '../components/keyboard/codes/languages';
 import { type UKC, type VKC } from '../components/keyboard/codes/code.help';
 import type { GeometrySelection, OSSelection, LanguageSelection, RemapStore } from '../features/keymap/keymap.types';
+import { utf16ToCodePoints } from './unicode';
 import { getOSOverride } from './os-overrides';
 
 export function resolveKeyLegend(
@@ -14,15 +15,19 @@ export function resolveKeyLegend(
     os: OSSelection,
     language: LanguageSelection,
     remapStore: RemapStore | null,
-    includeRemappings: boolean = true
+    includeRemappings: boolean = true,
+    actionType: 'press' | 'hold' = 'press'
 ) {
     // 1. Check for Active Remappings in the JSON
     if (includeRemappings && remapStore) {
         const layer = remapStore.remaps?.layers?.[0];
         const keyEntry = layer?.keys?.find((k) => k.code === code);
-        const vkCodeHex = (keyEntry?.actions?.[0]?.press?.codes || (keyEntry?.actions?.[0]?.press as { code?: number | number[] })?.code) as number | number[] | undefined;
+        const action = keyEntry?.actions?.find(a => a.type === actionType);
+        const rawCodes = action?.codes?.[0] as number[] | undefined;
+        const outputType = action?.outputType;
 
-        if (vkCodeHex !== undefined) {
+        if (rawCodes !== undefined) {
+            const vkCodeHex = outputType === 'unicode' ? utf16ToCodePoints(rawCodes) : rawCodes;
             let vkcTable = VK_ANSI;
             if (geometry.includes('iso')) vkcTable = VK_ISO;
             else if (geometry.includes('jis')) vkcTable = VK_JIS;
@@ -35,14 +40,12 @@ export function resolveKeyLegend(
                     ? (v as UKC).codePoints
                     : (os === 'WINDOWS' ? ((v as VKC).windows ?? (v as VKC).code) : ((v as VKC).mac ?? (v as VKC).code));
 
-                if (Array.isArray(target) && Array.isArray(vkCodeHex)) {
+                if (Array.isArray(target)) {
                     return target.length === vkCodeHex.length && target.every((val, index) => val === vkCodeHex[index]);
                 }
-                if (!Array.isArray(target) && Array.isArray(vkCodeHex) && vkCodeHex.length === 1) {
+                // Single number target vs array: match if array has one element
+                if (vkCodeHex.length === 1) {
                     return target === vkCodeHex[0];
-                }
-                if (!Array.isArray(target) && !Array.isArray(vkCodeHex)) {
-                    return target === vkCodeHex;
                 }
                 return false;
             });
@@ -62,12 +65,11 @@ export function resolveKeyLegend(
             }
 
             // If remapped but unknown, return hex
-            if (Array.isArray(vkCodeHex)) {
-                return `U+${vkCodeHex.map(c => c.toString(16).toUpperCase()).join('_')}`;
-            }
-            return `0x${vkCodeHex.toString(16).toUpperCase().padStart(2, '0')}`;
+            return `U+${vkCodeHex.map(c => c.toString(16).toUpperCase()).join('_')}`;
         }
     }
+
+    if (actionType === 'hold') return "";
 
     const osOverride = getOSOverride(os, code);
     if (osOverride?.legend) return osOverride.legend;

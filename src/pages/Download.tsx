@@ -29,7 +29,7 @@ export default function Download() {
           </h2>
           <a
             className="flex items-center justify-between px-[1.1rem] py-[0.9rem] bg-card border border-border rounded-[var(--radius-panel)] no-underline text-text text-[0.85rem] transition-all duration-200 group hover:border-accent hover:bg-accent-dim"
-            href="https://github.com/eliasskeppstedt/keyboard-relay-app/releases/download/v0.0.2/Keyboard.ReLay.zip"
+            href="https://github.com/eliasskeppstedt/keyboard-relay-app/releases/download/v0.0.3/keyboard-relay.zip"
             target="_blank"
             rel="noopener noreferrer"
             title="Download now"
@@ -42,8 +42,8 @@ export default function Download() {
                 </svg>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="font-mono text-[0.85rem] text-text">Windows Release v0.0.2</span>
-                <span className="text-[0.7rem] text-muted">Keyboard.ReLay.zip</span>
+                <span className="font-mono text-[0.85rem] text-text">Mac Release v0.0.3</span>
+                <span className="text-[0.7rem] text-muted">keyboard-relay.zip</span>
               </div>
             </div>
             <span className="inline-flex items-center justify-center text-muted text-[0.8rem] transition-transform duration-200 group-hover:text-accent group-hover:translate-x-[3px] will-change-transform transform-gpu">→</span>
@@ -55,7 +55,7 @@ export default function Download() {
         <div className="flex flex-col gap-3">
           <a
             className="flex items-center justify-between px-[1.1rem] py-[0.9rem] bg-card/40 border border-border/50 rounded-[var(--radius-panel)] no-underline text-muted text-[0.85rem] transition-all duration-200 group hover:border-border hover:bg-card hover:text-text"
-            href="https://github.com/eliasskeppstedt/keyboard-relay-app/releases/tag/v0.0.2"
+            href="https://github.com/eliasskeppstedt/keyboard-relay-app/releases/tag/v0.0.3"
             target="_blank"
             rel="noopener noreferrer"
             title="Take me to the release page on GitHub"

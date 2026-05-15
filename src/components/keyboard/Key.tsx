@@ -38,15 +38,17 @@ export default function Key({ keyInfo }: KeyProps) {
     }
     const isSelected = selectedKey?.code === code;
     
-    // Check if key has a press action assigned
-    const hasPressAction = remapStore?.remaps?.layers?.[0]?.keys?.some(
-        (k) => k.code === code && k.actions?.some((a) => a.press)
+    // Check if key has any action assigned
+    const hasAnyAction = remapStore?.remaps?.layers?.[0]?.keys?.some(
+        (k) => k.code === code && k.actions?.some((a) => a.codes?.length > 0)
     );
 
-    const isUnknown = hasPressAction && isUnknownMapping(code, geometry, os, remapStore);
+    const isUnknown = hasAnyAction && isUnknownMapping(code, geometry, os, remapStore);
 
-    // Resolve dynamic legend
-    const legend = resolveKeyLegend(code, geometry, os, language, remapStore, true);
+    // Resolve dynamic legends
+    const pressLegend = resolveKeyLegend(code, geometry, os, language, remapStore, true, 'press');
+    const holdLegend = resolveKeyLegend(code, geometry, os, language, remapStore, true, 'hold');
+    
     const isSpace = w > 4 && code === 'Space';
 
     return (
@@ -54,13 +56,13 @@ export default function Key({ keyInfo }: KeyProps) {
             onClick={() => setSelectedKey(keyInfo)}
             onContextMenu={(e) => {
                 e.preventDefault();
-                if (hasPressAction) removeKeyAction(code);
+                if (hasAnyAction) removeKeyAction(code);
             }}
             className={`
                 key transition-all duration-150
                 ${isSpace ? 'opacity-90' : ''}
                 ${isSelected ? 'selected ring-2 ring-accent' : ''}
-                ${isUnknown ? 'bg-red-500/15 border-red-500/50 text-red-500' : hasPressAction ? 'bg-success/15 border-success/50 text-success' : 'bg-card border-border text-text hover:bg-white/5'}
+                ${isUnknown ? 'bg-red-500/15 border-red-500/50 text-red-500' : hasAnyAction ? 'bg-success/15 border-success/50 text-success' : 'bg-card border-border text-text hover:bg-white/5'}
                 relative border rounded-[var(--round)] cursor-pointer flex-shrink-0
             `}
             style={{
@@ -72,8 +74,15 @@ export default function Key({ keyInfo }: KeyProps) {
                 height: `calc((var(--key-h) * var(--h)) + (var(--gap) * (var(--h) - 1)))`,
             } as React.CSSProperties}
         >
-            <div className={`flex items-center justify-center h-full text-[13px] font-mono uppercase ${hasPressAction ? 'font-bold' : ''}`}>
-                {legend}
+            <div className={`flex flex-col items-center justify-center h-full text-[13px] font-mono uppercase ${hasAnyAction ? 'font-bold' : ''}`}>
+                <span className={holdLegend ? 'leading-none' : ''}>
+                    {pressLegend}
+                </span>
+                {holdLegend && (
+                    <span className="leading-none mt-1">
+                        {holdLegend}
+                    </span>
+                )}
             </div>
         </button>
     );

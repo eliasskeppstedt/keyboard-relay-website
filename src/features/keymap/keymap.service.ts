@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { KeyGeom, GeometrySelection, LanguageSelection, OSSelection, RemapStore, GlobalConfig, Layer, KeyEntry, PressAction } from './keymap.types';
+import type { KeyGeom, GeometrySelection, LanguageSelection, OSSelection, RemapStore, GlobalConfig, Layer, KeyEntry, KeyAction } from './keymap.types';
 import { migrateRemapStore } from './keymap.utils';
 import { KEYBOARD_REGISTRY, DEFAULT_SETTINGS, type StandardFilter } from './keyboards.config';
 import { VK_ANSI } from '../../components/keyboard/codes/virtual-keys/ansi';
@@ -11,6 +11,7 @@ import { VK_EXTRAS } from '../../components/keyboard/codes/extras';
 import { UK_EMOJIS } from '../../components/keyboard/codes/unicodes/emojis';
 import { resolveKeyLegend } from '../../utils/key-resolution';
 import { type UKC } from '../../components/keyboard/codes/code.help';
+import { codePointsToUtf16 } from '../../utils/unicode';
 
 import { notify } from '../notifications/notification.service';
 
@@ -30,8 +31,8 @@ interface KeymapState {
     setSelectedKey: (key: KeyGeom | null) => void;
     setRemapStore: (data: RemapStore) => void;
     syncConfig: () => void;
-    setKeyAction: (code: string) => void;
-    removeKeyAction: (code: string) => void;
+    setKeyAction: (actionCode: string, type: 'press' | 'hold') => void;
+    removeKeyAction: (code: string, type?: 'press' | 'hold') => void;
     getLayoutName: () => string;
 }
 
@@ -123,7 +124,7 @@ export const useKeymapService = create<KeymapState>()(
                 set(updates);
             },
             setSelectedKey: (key) => set({ selectedKey: key }),
-            setKeyAction: (actionCode) => {
+            setKeyAction: (actionCode, actionType) => {
                 const { selectedKey, geometry, remapStore, os, language } = get();
                 if (!selectedKey) return;
 
@@ -153,43 +154,62 @@ export const useKeymapService = create<KeymapState>()(
                 const mainLayer = newJson.remaps.layers[0];
                 if (!mainLayer.keys) mainLayer.keys = [];
 
-                const keyEntry = {
-                    code: selectedKey.code,
-                    vkCode: baseHex,
-                    actions: [
-                        {
-                            press: {
-                                type: targetVkc.keyType === 'VKC' ? 'vkCode' : 'unicode',
-                                codes: Array.isArray(targetHex) ? targetHex : [targetHex]
-                            }
-                        }
-                    ]
+                const isUnicode = 'codePoints' in targetVkc;
+                const rawCodes = Array.isArray(targetHex) ? targetHex : [targetHex];
+                const finalCodes = isUnicode ? codePointsToUtf16(rawCodes as number[]) : rawCodes as number[];
+
+                const newAction: KeyAction = {
+                    type: actionType,
+                    outputType: (isUnicode ? 'unicode' : 'vkCode') as 'vkCode' | 'unicode',
+                    codes: [finalCodes]
                 };
 
-                // Remove existing entry for this code if any
-                mainLayer.keys = mainLayer.keys.filter((k: { code: string }) => k.code !== selectedKey.code);
-                mainLayer.keys.push(keyEntry);
+                // Find existing entry or create new
+                let keyEntry = mainLayer.keys.find((k: { code: string }) => k.code === selectedKey.code);
+                if (!keyEntry) {
+                    keyEntry = {
+                        code: selectedKey.code,
+                        vkCode: baseHex,
+                        actions: []
+                    };
+                    mainLayer.keys.push(keyEntry);
+                }
+
+                // Remove existing action of the same type if any
+                keyEntry.actions = keyEntry.actions.filter((a: KeyAction) => a.type !== actionType);
+                keyEntry.actions.push(newAction);
 
                 set({ remapStore: newJson });
                 get().syncConfig();
                 const baseLegend = resolveKeyLegend(selectedKey.code, geometry, os, language, newJson, false);
-                notify.success(`Mapped ${baseLegend} to ${targetVkc.legend}`);
+                notify.success(`Mapped ${baseLegend} (${actionType}) to ${targetVkc.legend}`);
             },
-            removeKeyAction: (code) => {
+            removeKeyAction: (code, actionType) => {
                 const { remapStore } = get();
                 if (!remapStore?.remaps?.layers?.[0]) return;
 
                 const newJson = JSON.parse(JSON.stringify(remapStore));
                 const mainLayer = newJson.remaps.layers[0];
                 if (mainLayer.keys) {
-                    mainLayer.keys = mainLayer.keys.filter((k: { code: string }) => k.code !== code);
+                    if (actionType) {
+                        const keyEntry = mainLayer.keys.find((k: { code: string }) => k.code === code);
+                        if (keyEntry) {
+                            keyEntry.actions = keyEntry.actions.filter((a: KeyAction) => a.type !== actionType);
+                            // Remove key entry if no actions left
+                            if (keyEntry.actions.length === 0) {
+                                mainLayer.keys = mainLayer.keys.filter((k: { code: string }) => k.code !== code);
+                            }
+                        }
+                    } else {
+                        mainLayer.keys = mainLayer.keys.filter((k: { code: string }) => k.code !== code);
+                    }
                 }
 
                 const { geometry, os, language } = get();
                 const baseLegend = resolveKeyLegend(code, geometry, os, language, newJson, false);
                 set({ remapStore: newJson });
                 get().syncConfig();
-                notify.info(`Removed mapping for ${baseLegend}`);
+                notify.info(`Removed mapping ${actionType ? `(${actionType}) ` : ''}for ${baseLegend}`);
             },
             getLayoutName: () => {
                 const { layoutName } = get();
@@ -217,16 +237,51 @@ export const useKeymapService = create<KeymapState>()(
                         state.remapStore.remaps.extras = [];
                     }
 
-                    // Migration: code -> codes []
+                    // Migration: old formats -> new flat KeyAction with codes: number[][]
                     state.remapStore.remaps.layers?.forEach((layer: Layer) => {
                         layer.keys?.forEach((key: KeyEntry) => {
-                            key.actions?.forEach((action: { press: PressAction }) => {
-                                if (action.press && (action.press as unknown as { code?: number | number[] }).code !== undefined && !action.press.codes) {
-                                    const oldCode = (action.press as unknown as { code?: number | number[] }).code;
-                                    action.press.codes = Array.isArray(oldCode) ? oldCode : (oldCode !== undefined ? [oldCode] : []);
-                                    delete (action.press as unknown as { code?: number | number[] }).code;
+                            key.actions = key.actions?.map((action: KeyAction | Record<string, unknown>) => {
+                                // Already new format
+                                if ('outputType' in action && Array.isArray(action.codes)) {
+                                    return action as KeyAction;
                                 }
-                            });
+                                // Old format: { press: { type, codes } } or { press: { type, code } }
+                                const press = (action as Record<string, unknown>).press as Record<string, unknown> | undefined;
+                                if (press) {
+                                    const oldCodes = press.codes as number[] | undefined;
+                                    const oldCode = press.code as number | number[] | undefined;
+                                    let codes: number[][];
+                                    if (oldCodes) {
+                                        codes = [oldCodes];
+                                    } else if (oldCode !== undefined) {
+                                        codes = Array.isArray(oldCode) ? [oldCode] : [[oldCode]];
+                                    } else {
+                                        codes = [];
+                                    }
+                                    const outputType = (press.type as string) || 'vkCode';
+                                    let finalCodes = codes;
+                                    
+                                    // If it was already unicode but used code points, convert to UTF-16
+                                    if (outputType === 'unicode' && codes.length > 0) {
+                                        const sample = codes[0];
+                                        // Simple heuristic: if any value is > 0xFFFF, it's a code point
+                                        const isCodePoint = sample.some(c => c > 0xFFFF);
+                                        // OR if it's a known emoji code point (range 0x1F000+)
+                                        const hasEmojiCodePoint = sample.some(c => c >= 0x1F000);
+                                        
+                                        if (isCodePoint || hasEmojiCodePoint) {
+                                            finalCodes = [codePointsToUtf16(sample)];
+                                        }
+                                    }
+
+                                    return {
+                                        type: 'press' as const,
+                                        outputType,
+                                        codes: finalCodes
+                                    } as KeyAction;
+                                }
+                                return action as KeyAction;
+                            }) || [];
                         });
                     });
                 }

@@ -5,6 +5,7 @@ import { VK_JIS } from '../../components/keyboard/codes/virtual-keys/jis';
 import { VK_EXTRAS } from '../../components/keyboard/codes/extras';
 import { UK_EMOJIS } from '../../components/keyboard/codes/unicodes/emojis';
 import { type UKC, type VKC } from '../../components/keyboard/codes/code.help';
+import { codePointsToUtf16, utf16ToCodePoints } from '../../utils/unicode';
 
 /**
  * Pure helper functions for keymap logic.
@@ -92,18 +93,25 @@ export const migrateRemapStore = (remapStore: RemapStore, oldOS: OSSelection, ne
         if (!layer.keys) return;
         layer.keys.forEach((keyEntry: KeyEntry) => {
             const firstAction = keyEntry.actions?.[0];
-            const vkCodeHex = firstAction?.press?.codes || (firstAction?.press as { code?: number | number[] })?.code;
-            if (vkCodeHex === undefined) return;
+            const rawCodes = firstAction?.codes?.[0];
+            const outputType = firstAction?.outputType;
+            if (rawCodes === undefined) return;
+
+            const vkCodeHex = outputType === 'unicode' ? utf16ToCodePoints(rawCodes) : rawCodes;
 
             const vkcEntry = Object.values(allKeys).find(v => {
                 const target = 'codePoints' in v
                     ? (v as UKC).codePoints
                     : (oldOS === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code));
 
-                if (Array.isArray(target) && Array.isArray(vkCodeHex)) {
+                if (Array.isArray(target)) {
                     return target.length === vkCodeHex.length && target.every((val, index) => val === vkCodeHex[index]);
                 }
-                return target === vkCodeHex;
+                // Single number target vs array: match if array has one element
+                if (vkCodeHex.length === 1) {
+                    return target === vkCodeHex[0];
+                }
+                return false;
             });
 
             if (vkcEntry) {
@@ -111,9 +119,9 @@ export const migrateRemapStore = (remapStore: RemapStore, oldOS: OSSelection, ne
                     ? (vkcEntry as UKC).codePoints
                     : (newOS === 'WINDOWS' ? ((vkcEntry as VKC).windows ?? (vkcEntry as VKC).code) : ((vkcEntry as VKC).mac ?? (vkcEntry as VKC).code)) as number | number[];
 
-                const newCodes = Array.isArray(newCode) ? newCode : [newCode];
-                firstAction.press.codes = newCodes;
-                if ((firstAction.press as { code?: unknown }).code) delete (firstAction.press as { code?: unknown }).code;
+                const newCodesRaw = Array.isArray(newCode) ? newCode : [newCode];
+                const finalCodes = outputType === 'unicode' ? codePointsToUtf16(newCodesRaw) : newCodesRaw;
+                firstAction.codes = [finalCodes];
 
                 // Also update the base key vkCode if needed (base keys are always single VKCs)
                 const baseVkc = vkcTable[keyEntry.code];
@@ -135,28 +143,35 @@ export const migrateRemapStore = (remapStore: RemapStore, oldOS: OSSelection, ne
 export const isUnknownMapping = (code: string, geometry: string, os: OSSelection, remapStore: RemapStore): boolean => {
     const layer = remapStore.remaps?.layers?.[0];
     const keyEntry = layer?.keys?.find((k) => k.code === code);
-    const assignedCodes = keyEntry?.actions?.[0]?.press?.codes || (keyEntry?.actions?.[0]?.press as { code?: number | number[] })?.code;
-
-    if (assignedCodes === undefined) return false;
+    if (!keyEntry?.actions || keyEntry.actions.length === 0) return false;
 
     let vkcTable = VK_ANSI;
     if (geometry.includes('iso')) vkcTable = VK_ISO;
     else if (geometry.includes('jis')) vkcTable = VK_JIS;
-
     const allKeys = { ...vkcTable, ...VK_EXTRAS, ...UK_EMOJIS };
-    const isKnown = Object.values(allKeys).some((v) => {
-        const target = 'codePoints' in v
-            ? (v as UKC).codePoints
-            : (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code));
 
-        if (Array.isArray(target) && Array.isArray(assignedCodes)) {
-            return target.length === assignedCodes.length && target.every((val, index) => val === assignedCodes[index]);
-        }
-        if (!Array.isArray(target) && Array.isArray(assignedCodes) && assignedCodes.length === 1) {
-            return target === assignedCodes[0];
-        }
-        return (target as unknown) === (assignedCodes as unknown);
+    return keyEntry.actions.some(action => {
+        const rawCodes = action.codes?.[0];
+        const outputType = action.outputType;
+        if (rawCodes === undefined) return false;
+
+        const assignedCodes = outputType === 'unicode' ? utf16ToCodePoints(rawCodes) : rawCodes;
+
+        const isKnown = Object.values(allKeys).some((v) => {
+            const target = 'codePoints' in v
+                ? (v as UKC).codePoints
+                : (os === 'WINDOWS' ? (v.windows ?? v.code) : (v.mac ?? v.code));
+
+            if (Array.isArray(target)) {
+                return target.length === assignedCodes.length && target.every((val, index) => val === assignedCodes[index]);
+            }
+            // Single number target vs array: match if array has one element
+            if (assignedCodes.length === 1) {
+                return target === assignedCodes[0];
+            }
+            return false;
+        });
+
+        return !isKnown;
     });
-
-    return !isKnown;
 };

@@ -44,17 +44,16 @@ export interface GlobalConfig {
     keyboardName?: string;
 }
 
-export interface PressAction {
-    type: 'unicode' | 'vkCode';
-    codes: number[];
+export interface KeyAction {
+    type: 'press' | 'hold';
+    outputType: 'unicode' | 'vkCode';
+    codes: number[][];
 }
 
 export interface KeyEntry {
     code: string;
     vkCode: number;
-    actions: Array<{
-        press: PressAction;
-    }>;
+    actions: KeyAction[];
 }
 
 export interface Layer {

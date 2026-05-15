@@ -75,7 +75,7 @@ export default function HelperPanel() {
                         const hasWinCodes = allKeys.some(k => 
                             k.vkCode === 160 || k.vkCode === 162 || k.vkCode === 164 || k.vkCode === 91 ||
                             k.actions?.some(a => {
-                                const codes = a.press?.codes;
+                                const codes = a.codes?.[0];
                                 return Array.isArray(codes) && codes.some(c => c === 160 || c === 162 || c === 164 || c === 91);
                             })
                         );

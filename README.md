@@ -8,12 +8,22 @@ App is managed in this repository: https://github.com/eliasskeppstedt/keyboard-r
 ## Current state
 The remapping tool can now generate a map that lets you redifine what happens when a key is pressed.  
 Keyboards: 
-- Generic ISO 105
 - MacBook ISO keyboard with physical F keys
+- Generic ISO
+- - 60, 65, 75, 80, 100
+- Generic ANSI
+- - 100
+- - Generic JIS
+- - 60, 100
 
 Languages:
 - Swedish
 - English
+- Spanish
+- German
+- Korean
+- Japanese 
+- Russian
 
 Note: Key codes that are currently used (virtual key codes) are not universal for all languages
 It is possible to edit the codes manually in the json file. To change the code, you can create a 
